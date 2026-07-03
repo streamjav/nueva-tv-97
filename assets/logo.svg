@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 320" role="img" aria-labelledby="title desc">
+  <title id="title">Nueva TV</title>
+  <desc id="desc">Logotipo horizontal de Nueva TV con una N moderna y efecto digital.</desc>
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#27E8DC"/>
+      <stop offset="100%" stop-color="#22C7D2"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#73F2EA"/>
+      <stop offset="100%" stop-color="#18BFCB"/>
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(18 10)">
+    <path d="M102 198c-9 0-16-7-16-16 0-3 1-5 2-7l72-132c12-21 38-34 67-34 19 0 36 6 48 16l181 154c7 6 17 10 28 10h34c9 0 16 7 16 16s-7 16-16 16h-34c-19 0-37-6-51-18L252 49c-7-6-16-9-25-9-16 0-30 8-37 21l-72 132c-3 5-9 8-16 8z" fill="url(#g1)"/>
+    <path d="M516 221c-28 0-55-13-69-35L370 61c-4-7-2-17 5-22 7-4 17-2 22 5l77 125c8 13 25 21 42 21 13 0 25-5 34-14l85-145c4-7 14-10 22-6 7 4 10 14 6 22l-85 145c-15 25-39 39-67 39z" fill="url(#g2)"/>
+    <path d="M548 205V76c0-22 18-40 40-40h44v32h-40c-7 0-12 5-12 12v125z" fill="url(#g1)"/>
+    <rect x="616" y="22" width="28" height="28" rx="6" fill="#36EDE0"/>
+    <rect x="668" y="0" width="28" height="28" rx="6" fill="#36EDE0"/>
+    <rect x="664" y="58" width="28" height="28" rx="6" fill="#36EDE0"/>
+    <rect x="716" y="34" width="28" height="28" rx="6" fill="#36EDE0"/>
+    <rect x="716" y="92" width="28" height="28" rx="6" fill="#36EDE0"/>
+    <rect x="612" y="96" width="28" height="28" rx="6" fill="#36EDE0"/>
+    <rect x="772" y="10" width="28" height="28" rx="6" fill="#36EDE0"/>
+
+    <g transform="translate(0 212)">
+      <path d="M22 58c0-22 17-39 39-39h29c22 0 39 17 39 39v75h-31V60c0-7-5-12-12-12H74c-7 0-12 5-12 12v73H22z" fill="#27E8DC"/>
+      <path d="M160 19h41v74c0 7 5 12 12 12h17c7 0 12-5 12-12V19h40v71c0 26-21 47-47 47h-34c-28 0-51-23-51-51z" fill="#27E8DC"/>
+      <path d="M393 19h31l43 114h-36l-7-18h-54l-7 18h-35zm4 70h17l-8-24z" fill="#27E8DC"/>
+      <path d="M492 19h41v71c0 9 7 16 16 16h20c8 0 15-6 15-15V19h41v70c0 27-21 48-48 48h-34c-28 0-51-23-51-51z" fill="#27E8DC"/>
+      <path d="M650 19h115v29h-74v15h57v28h-57v16h76v26H650z" fill="#27E8DC"/>
+      <path d="M807 19h128v34h-43v80h-42V53h-43z" fill="#FFFFFF"/>
+    </g>
+  </g>
+</svg>

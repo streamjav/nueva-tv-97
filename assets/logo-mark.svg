@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 180" role="img" aria-labelledby="title desc">
+  <title id="title">Isotipo Nueva TV</title>
+  <desc id="desc">Símbolo estilizado de Nueva TV con forma de N y píxeles digitales.</desc>
+  <defs>
+    <linearGradient id="ntvTeal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#32F0E0"/>
+      <stop offset="100%" stop-color="#22C9D5"/>
+    </linearGradient>
+    <linearGradient id="ntvTeal2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7AF4EA"/>
+      <stop offset="100%" stop-color="#25C6D4"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(18 16)">
+    <path d="M18 118c-7 0-13-6-13-13 0-2 1-4 2-6l41-74C56 11 72 2 90 2c11 0 22 4 30 11l100 85c4 4 10 6 16 6h3c7 0 13 6 13 13s-6 13-13 13h-3c-13 0-25-4-35-13L101 32c-4-3-8-5-13-5-9 0-17 4-21 12L31 111c-3 5-8 7-13 7z" fill="url(#ntvTeal)"/>
+    <path d="M201 129c-17 0-32-8-41-22l-43-70c-4-6-2-14 4-18s14-2 18 4l43 70c5 8 14 13 24 13 7 0 15-3 20-8l46-79c4-6 11-8 18-5 6 4 8 12 5 18l-46 79c-10 12-28 18-48 18z" fill="url(#ntvTeal2)"/>
+    <path d="M218 117V47c0-13 11-24 24-24h18v26h-13c-2 0-4 2-4 4v64z" fill="url(#ntvTeal)"/>
+    <rect x="247" y="8" width="14" height="14" rx="3" fill="#36EDE0"/>
+    <rect x="274" y="0" width="14" height="14" rx="3" fill="#36EDE0"/>
+    <rect x="272" y="31" width="14" height="14" rx="3" fill="#36EDE0"/>
+  </g>
+</svg>

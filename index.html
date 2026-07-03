@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nueva TV | Señal Digital en Vivo</title>
+  <meta name="description" content="Nueva TV: señal digital en vivo con programación, noticias, videos, redes sociales y contacto directo por WhatsApp." />
+  <meta name="theme-color" content="#4300b8" />
+
+  <meta property="og:title" content="Nueva TV | Señal Digital en Vivo" />
+  <meta property="og:description" content="Mira la señal en vivo de Nueva TV, revisa la programación y conecta por Facebook y WhatsApp." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/og-image.svg" />
+
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+  <header class="site-header" id="inicio">
+    <div class="container nav-wrap">
+      <a class="brand brand--header" href="#inicio" aria-label="Nueva TV inicio">
+        <img src="assets/logo-exact.png" alt="Logotipo de Nueva TV" class="brand__header-logo" />
+      </a>
+
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu" aria-label="Abrir menú">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav aria-label="Navegación principal">
+        <ul class="site-menu" id="site-menu">
+          <li><a href="#en-vivo">En vivo</a></li>
+          <li><a href="#programacion">Programación</a></li>
+          <li><a href="#noticias">Noticias</a></li>
+          <li><a href="#videos">Videos</a></li>
+          <li><a href="#publicidad">Publicidad</a></li>
+          <li><a href="#contacto">Contacto</a></li>
+        </ul>
+      </nav>
+
+      <a class="btn btn--small btn--primary nav-cta" href="#en-vivo">▶ Ver en vivo</a>
+    </div>
+  </header>
+
+  <main id="contenido">
+    <section class="hero section-pad">
+      <div class="container hero__grid">
+        <div class="hero__content reveal">
+          <p class="eyebrow"><span class="live-dot"></span> Señal digital en vivo</p>
+          <h1>Nueva TV,<br />imagen moderna para una audiencia conectada.</h1>
+          <p class="hero__lead">Rediseñada con la identidad del logotipo: púrpura intenso, turquesa vibrante y un estilo visual televisivo, limpio y profesional para transmitir en vivo desde cualquier dispositivo.</p>
+
+          <div class="hero__actions">
+            <a class="btn btn--primary" href="#en-vivo">▶ Ver transmisión</a>
+            <a class="btn btn--ghost" href="https://wa.me/51901996052?text=Hola%20Nueva%20TV%2C%20quiero%20informaci%C3%B3n" target="_blank" rel="noopener">WhatsApp</a>
+          </div>
+
+          <div class="hero__stats" aria-label="Resumen del canal">
+            <div><strong>24/7</strong><span>Señal digital</span></div>
+            <div><strong>HLS</strong><span>Streaming M3U8</span></div>
+            <div><strong>Social</strong><span>Facebook activo</span></div>
+          </div>
+        </div>
+
+        <aside class="hero-card reveal" aria-label="Vista de marca Nueva TV">
+          <div class="hero-card__frame">
+            <div class="hero-card__top">
+              <span class="pill pill--live">EN VIVO</span>
+              <span class="hero-card__time" id="current-time">--:--</span>
+            </div>
+            <div class="hero-card__body hero-card__body--orbit">
+              <div class="hero-orbit-scene" aria-hidden="true">
+                <div class="orbit orbit--outer"></div>
+                <div class="orbit orbit--middle"></div>
+                <div class="orbit orbit--inner"></div>
+                <div class="orbit-satellite orbit-satellite--outer"><span class="orbit-dot orbit-dot--one"></span></div>
+                <div class="orbit-satellite orbit-satellite--middle"><span class="orbit-dot orbit-dot--two"></span></div>
+                <div class="orbit-satellite orbit-satellite--inner"><span class="orbit-dot orbit-dot--three"></span></div>
+                <div class="hero-logo-disc">
+                  <div class="hero-logo-disc__ring"></div>
+                  <img src="assets/logo-exact.png" alt="Logotipo de Nueva TV" class="hero-card__logo-icon hero-card__logo-full" />
+                  <button class="play-button" type="button" data-scroll-to="en-vivo" aria-label="Ir a la transmisión en vivo">▶</button>
+                </div>
+              </div>
+            </div>
+            <div class="hero-card__footer">
+              <strong>Ahora en señal digital</strong>
+              <span>Noticias · Música · Entrevistas · Eventos</span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="ticker" aria-label="Titulares importantes">
+      <div class="ticker__label">Al aire</div>
+      <div class="ticker__track">
+        <span>Señal en vivo disponible desde celular, tablet y computadora.</span>
+        <span>Síguenos en Facebook: Nueva TV Chanchamayo.</span>
+        <span>Atención comercial y contacto directo por WhatsApp.</span>
+        <span>Diseño optimizado para GitHub Pages y dominio propio.</span>
+      </div>
+    </section>
+
+    <section class="section section-pad" id="en-vivo">
+      <div class="container">
+        <div class="section-heading reveal">
+          <p class="eyebrow"><span class="live-dot"></span> En vivo</p>
+          <h2>Señal principal de Nueva TV</h2>
+          <p>El reproductor ya está configurado con tu señal M3U8. Si el navegador no soporta HLS nativo, la web usa Hls.js automáticamente.</p>
+        </div>
+
+        <div class="live-layout reveal">
+          <div class="video-shell">
+            <div class="video-toolbar">
+              <span class="pill pill--live">● LIVE</span>
+              <span id="live-title">Nueva TV · Señal oficial</span>
+            </div>
+
+            <div class="video-box">
+              <video id="hlsPlayer" controls playsinline preload="metadata" poster="assets/og-image.svg"></video>
+              <div class="video-overlay" id="videoOverlay">
+                <img src="assets/logo-exact.png" alt="Nueva TV" />
+                <h3>Tu señal está lista</h3>
+                <p>Presiona reproducir para ver la transmisión en vivo.</p>
+                <button class="btn btn--primary" type="button" id="startPlaybackBtn">▶ Iniciar señal</button>
+              </div>
+            </div>
+          </div>
+
+          <aside class="side-panel">
+            <div class="info-card">
+              <h3>Conecta rápido</h3>
+              <div class="link-stack">
+                <a href="https://www.facebook.com/nuevatvchanchamayo" target="_blank" rel="noopener">Facebook oficial</a>
+                <a href="https://wa.me/51901996052?text=Hola%20Nueva%20TV%2C%20quiero%20contactarme%20con%20ustedes" target="_blank" rel="noopener">WhatsApp: +51 901 996 052</a>
+                <a href="#publicidad">Planes de publicidad</a>
+              </div>
+            </div>
+            <div class="info-card info-card--soft">
+              <h3>Ahora</h3>
+              <p class="now-card__program">Nueva TV en vivo</p>
+              <p class="now-card__desc">Transmisión abierta para noticias locales, entrevistas, videos, cultura y entretenimiento.</p>
+              <ul class="check-list">
+                <li>Diseño alineado al logotipo</li>
+                <li>Señal HLS integrada</li>
+                <li>Contacto real por WhatsApp</li>
+              </ul>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-pad section--soft" id="programacion">
+      <div class="container">
+        <div class="section-heading reveal">
+          <p class="eyebrow">Programación</p>
+          <h2>Franja semanal editable</h2>
+          <p>Puedes cambiar horarios, nombres y categorías cuando tengas la programación oficial del canal.</p>
+        </div>
+
+        <div class="schedule-tabs reveal" role="tablist" aria-label="Días de programación">
+          <button class="tab is-active" type="button" data-day="lunes">Lunes</button>
+          <button class="tab" type="button" data-day="martes">Martes</button>
+          <button class="tab" type="button" data-day="miercoles">Miércoles</button>
+          <button class="tab" type="button" data-day="jueves">Jueves</button>
+          <button class="tab" type="button" data-day="viernes">Viernes</button>
+        </div>
+
+        <div class="schedule-grid reveal" id="scheduleGrid" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section class="section section-pad" id="noticias">
+      <div class="container">
+        <div class="section-heading section-heading--split reveal">
+          <div>
+            <p class="eyebrow">Noticias</p>
+            <h2>Un formato visual listo para informar</h2>
+          </div>
+          <a class="link-arrow" href="https://www.facebook.com/nuevatvchanchamayo" target="_blank" rel="noopener">Ver Facebook →</a>
+        </div>
+
+        <div class="news-grid reveal">
+          <article class="news-card news-card--featured">
+            <div class="news-card__media gradient-media gradient-media--one"></div>
+            <div class="news-card__body">
+              <span class="category">Coberturas</span>
+              <h3>Transmisiones para actividades locales, eventos y entrevistas</h3>
+              <p>La portada destaca la señal y facilita que tu audiencia llegue a la transmisión en un solo clic.</p>
+            </div>
+          </article>
+          <article class="news-card">
+            <div class="news-card__media gradient-media gradient-media--two"></div>
+            <div class="news-card__body">
+              <span class="category">Actualidad</span>
+              <h3>Titulares rápidos para comunidad y región</h3>
+              <p>Tarjetas listas para publicar noticias, comunicados y anuncios del canal.</p>
+            </div>
+          </article>
+          <article class="news-card">
+            <div class="news-card__media gradient-media gradient-media--three"></div>
+            <div class="news-card__body">
+              <span class="category">Social</span>
+              <h3>Integración con Facebook como ventana de cercanía</h3>
+              <p>Potencia tu alcance enlazando noticias, clips y publicaciones desde la red principal del canal.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-pad section--soft" id="videos">
+      <div class="container">
+        <div class="section-heading reveal">
+          <p class="eyebrow">Videos destacados</p>
+          <h2>Programas, cápsulas y contenido especial</h2>
+          <p>Estas tarjetas pueden apuntar a Facebook, YouTube, TikTok o páginas internas.</p>
+        </div>
+
+        <div class="video-grid reveal">
+          <a class="video-card" href="#en-vivo" aria-label="Ver edición central">
+            <span class="video-card__thumb thumb-one">▶</span>
+            <strong>Edición Central</strong>
+            <small>Resumen informativo diario</small>
+          </a>
+          <a class="video-card" href="https://www.facebook.com/nuevatvchanchamayo" target="_blank" rel="noopener" aria-label="Ver en Facebook">
+            <span class="video-card__thumb thumb-two">f</span>
+            <strong>Facebook Live</strong>
+            <small>Conecta con la audiencia</small>
+          </a>
+          <a class="video-card" href="#en-vivo" aria-label="Ver música en vivo">
+            <span class="video-card__thumb thumb-three">▶</span>
+            <strong>Señal en Vivo</strong>
+            <small>Streaming oficial</small>
+          </a>
+          <a class="video-card" href="https://wa.me/51901996052?text=Hola%20Nueva%20TV%2C%20quiero%20m%C3%A1s%20informaci%C3%B3n" target="_blank" rel="noopener" aria-label="Contactar por WhatsApp">
+            <span class="video-card__thumb thumb-four">✆</span>
+            <strong>Contacto directo</strong>
+            <small>Atención inmediata</small>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-pad" id="conductores">
+      <div class="container">
+        <div class="section-heading reveal">
+          <p class="eyebrow">Equipo</p>
+          <h2>Talentos del canal</h2>
+          <p>Sección pensada para reemplazar por fotos reales y nombres oficiales del equipo.</p>
+        </div>
+
+        <div class="team-grid reveal">
+          <article class="team-card">
+            <div class="avatar avatar--one">NT</div>
+            <h3>Conducción Principal</h3>
+            <p>Magazines, entrevistas y ediciones en vivo.</p>
+          </article>
+          <article class="team-card">
+            <div class="avatar avatar--two">97</div>
+            <h3>Reportería</h3>
+            <p>Coberturas locales y participación ciudadana.</p>
+          </article>
+          <article class="team-card">
+            <div class="avatar avatar--three">TV</div>
+            <h3>Producción</h3>
+            <p>Streaming, continuidad, clips y publicaciones.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-pad section--ad" id="publicidad">
+      <div class="container ad-grid reveal">
+        <div>
+          <p class="eyebrow">Publicidad</p>
+          <h2>Anuncia tu marca en Nueva TV</h2>
+          <p>Diseñada para captar anunciantes con un estilo confiable y actual. Ideal para spots, entrevistas comerciales, banners, auspicios y cobertura de eventos.</p>
+        </div>
+        <div class="ad-panel">
+          <h3>Paquetes sugeridos</h3>
+          <ul>
+            <li>Spot en señal digital</li>
+            <li>Mención en vivo</li>
+            <li>Banner web principal</li>
+            <li>Difusión en Facebook</li>
+          </ul>
+          <a class="btn btn--primary btn--full" href="https://wa.me/51901996052?text=Hola%20Nueva%20TV%2C%20quiero%20informaci%C3%B3n%20sobre%20publicidad" target="_blank" rel="noopener">Consultar por WhatsApp</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-pad" id="contacto">
+      <div class="container contact-grid reveal">
+        <div>
+          <p class="eyebrow">Contacto</p>
+          <h2>Hablemos</h2>
+          <p>Los accesos ya están configurados con tus datos reales para que la página quede lista como demo funcional o como sitio final.</p>
+
+          <div class="contact-list">
+            <a href="https://wa.me/51901996052" target="_blank" rel="noopener">WhatsApp: +51 901 996 052</a>
+            <a href="https://www.facebook.com/nuevatvchanchamayo" target="_blank" rel="noopener">Facebook: Nueva TV Chanchamayo</a>
+            <a href="#en-vivo">Ver la señal en vivo</a>
+          </div>
+        </div>
+
+        <form class="contact-form" name="contacto" method="post" action="#" aria-label="Formulario de contacto demo">
+          <label>
+            Nombre
+            <input type="text" name="nombre" placeholder="Tu nombre" required />
+          </label>
+          <label>
+            Mensaje
+            <textarea name="mensaje" rows="5" placeholder="Escribe tu consulta" required></textarea>
+          </label>
+          <button class="btn btn--primary btn--full" type="submit">Enviar por WhatsApp</button>
+          <p class="form-note">Este formulario abre WhatsApp con tu mensaje ya preparado.</p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a class="brand brand--footer" href="#inicio">
+          <img src="assets/logo-exact.png" alt="Nueva TV" class="brand__footer-logo" />
+        </a>
+        <p>Señal digital en vivo para noticias, música, entrevistas y comunidad.</p>
+      </div>
+      <div>
+        <h3>Secciones</h3>
+        <a href="#en-vivo">En vivo</a>
+        <a href="#programacion">Programación</a>
+        <a href="#noticias">Noticias</a>
+        <a href="#publicidad">Publicidad</a>
+      </div>
+      <div>
+        <h3>Conecta</h3>
+        <a href="https://www.facebook.com/nuevatvchanchamayo" target="_blank" rel="noopener">Facebook</a>
+        <a href="https://wa.me/51901996052" target="_blank" rel="noopener">WhatsApp</a>
+      </div>
+    </div>
+    <div class="container copyright">
+      <span>© <span id="year"></span> Nueva TV. Todos los derechos reservados.</span>
+      <span>Rediseño visual alineado al logotipo.</span>
+    </div>
+  </footer>
+
+  <div class="floating-player" id="floatingPlayer" aria-label="Acceso rápido a la señal">
+    <div>
+      <strong><span class="live-dot"></span> Nueva TV en vivo</strong>
+      <span>Señal oficial</span>
+    </div>
+    <a class="btn btn--small btn--primary" href="#en-vivo">Ver ahora</a>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script src="script.js"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BroadcastService",
+    "name": "Nueva TV",
+    "description": "Señal digital en vivo de Nueva TV con programación, noticias, videos y contacto social.",
+    "broadcastDisplayName": "Nueva TV",
+    "areaServed": "PE",
+    "sameAs": [
+      "https://www.facebook.com/nuevatvchanchamayo"
+    ],
+    "url": "https://example.com"
+  }
+  </script>
+</body>
+</html>
