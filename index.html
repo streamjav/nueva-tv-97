@@ -14,6 +14,8 @@
 
   <link rel="icon" type="image/svg+xml" href="assets/favicon.png" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="preconnect" href="https://s26.myradiostream.com" crossorigin />
+  <link rel="preconnect" href="https://183.bozztv.com" crossorigin />
   <link rel="stylesheet" href="styles.css?v=20260713-1" />
 </head>
 <body>
@@ -140,7 +142,7 @@
             <h3>Radio La Nueva 97 FM</h3>
             <p class="radio-player-description">Música, noticias, entrevistas y programación local desde Chanchamayo. Presiona el botón para comenzar a escuchar.</p>
 
-            <audio id="radioPlayer" preload="none" aria-label="Reproductor de Radio La Nueva 97 FM"></audio>
+            <audio id="radioPlayer" src="https://s26.myradiostream.com/22416/listen.mp3" preload="auto" playsinline aria-label="Reproductor de Radio La Nueva 97 FM"></audio>
 
             <div class="radio-main-controls">
               <button class="radio-play-button" id="radioToggle" type="button" aria-pressed="false">
@@ -193,7 +195,7 @@
             </div>
 
             <div class="video-box">
-              <video id="hlsPlayer" controls playsinline preload="metadata" poster="assets/og-image.jpg"></video>
+              <video id="hlsPlayer" controls playsinline webkit-playsinline preload="auto" poster="assets/og-image.jpg"></video>
               <div class="video-overlay" id="videoOverlay">
                 <img src="assets/logo-nueva-tv-chanchamayo.webp" alt="Nueva TV" />
                 <h3>Tu señal está lista</h3>
@@ -431,11 +433,11 @@
       <strong><span class="live-dot"></span> Radio La Nueva 97 FM</strong>
       <span>Señal radial en vivo</span>
     </div>
-    <a class="btn btn--small btn--primary" href="#radio">Escuchar</a>
+    <a class="btn btn--small btn--primary" href="#radio" data-play-radio aria-controls="radioPlayer">Escuchar</a>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script src="script.js?v=20260713-1"></script>
+  <script src="script.js?v=20260713-mobile-1"></script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",

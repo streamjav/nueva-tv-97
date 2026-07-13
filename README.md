@@ -47,3 +47,10 @@ El reproductor está preparado para funcionar dentro de GitHub Pages y en domini
 ## Reproducción directa desde la portada
 
 Los botones **Escuchar radio** y **Ver televisión** de la portada inician la señal correspondiente con un solo clic y desplazan suavemente al reproductor. Los controles internos siguen disponibles para pausar, cambiar volumen o reiniciar la señal.
+
+
+## Mejora de reproducción en celulares
+
+La radio y la señal HLS se preparan al cargar la página, sin iniciar audio ni video. Al tocar **Escuchar radio** o **Ver televisión**, la llamada a `play()` ocurre directamente dentro del evento del usuario y el desplazamiento se ejecuta después. Esto mejora la compatibilidad con Chrome para Android y Safari en iPhone/iPad.
+
+Los navegadores móviles todavía pueden exigir un segundo toque si el usuario bloqueó el sonido del sitio, activó ahorro extremo de datos o el sistema interrumpe la conexión del stream. En ese caso permanecen disponibles los controles internos.

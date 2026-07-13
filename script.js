@@ -113,72 +113,148 @@ function setupPlayer() {
   if (!video) return;
 
   let hls = null;
-  let streamInitialized = false;
+  let streamPrepared = false;
 
-  const initializeStream = () => {
-    if (streamInitialized) return true;
+  const showUnsupportedMessage = () => {
+    if (!overlay) return;
+    overlay.classList.remove("is-hidden");
+    overlay.innerHTML = `
+      <img src="assets/logo-nueva-tv-chanchamayo.webp" alt="Nueva TV" />
+      <h3>Navegador no compatible</h3>
+      <p>Prueba en un navegador moderno o abre la señal desde un dispositivo compatible con HLS.</p>
+    `;
+  };
+
+  const showPlaybackPermissionMessage = () => {
+    if (!overlay) return;
+    overlay.classList.remove("is-hidden");
+    overlay.innerHTML = `
+      <img src="assets/logo-nueva-tv-chanchamayo.webp" alt="Nueva TV" />
+      <h3>Presiona reproducir</h3>
+      <p>El navegador necesita una interacción directa para iniciar la transmisión con sonido.</p>
+      <button class="btn btn--primary" type="button" id="retryPlaybackBtn">▶ Iniciar señal</button>
+    `;
+    $("#retryPlaybackBtn")?.addEventListener("click", requestTvPlayback, { once: true });
+  };
+
+  const prepareStream = () => {
+    if (streamPrepared) return true;
+
+    video.preload = "auto";
+    video.playsInline = true;
+    video.setAttribute("playsinline", "");
+    video.setAttribute("webkit-playsinline", "");
 
     if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = HLS_STREAM_URL;
-      streamInitialized = true;
+      video.load();
+      streamPrepared = true;
       return true;
     }
 
     if (window.Hls && window.Hls.isSupported()) {
       hls = new window.Hls({
         enableWorker: true,
-        lowLatencyMode: true
+        lowLatencyMode: true,
+        autoStartLoad: true,
+        startPosition: -1
       });
-      hls.loadSource(HLS_STREAM_URL);
+
       hls.attachMedia(video);
-      streamInitialized = true;
+      hls.on(window.Hls.Events.MEDIA_ATTACHED, () => {
+        hls.loadSource(HLS_STREAM_URL);
+        hls.startLoad(-1);
+      });
+
+      hls.on(window.Hls.Events.ERROR, (_event, data) => {
+        if (!data?.fatal) return;
+
+        if (data.type === window.Hls.ErrorTypes.NETWORK_ERROR) {
+          hls.startLoad(-1);
+          return;
+        }
+
+        if (data.type === window.Hls.ErrorTypes.MEDIA_ERROR) {
+          hls.recoverMediaError();
+          return;
+        }
+
+        console.error("Error fatal en la señal HLS:", data);
+      });
+
+      streamPrepared = true;
       return true;
     }
 
-    if (overlay) {
-      overlay.innerHTML = `
-        <img src="assets/logo-nueva-tv-chanchamayo.webp" alt="Nueva TV" />
-        <h3>Navegador no compatible</h3>
-        <p>Prueba en un navegador moderno o abre la señal desde un dispositivo compatible con HLS.</p>
-      `;
-    }
+    showUnsupportedMessage();
     return false;
   };
 
-  const playStream = async () => {
-    try {
-      if (!initializeStream()) return;
-      hideOverlay();
-      await video.play();
-    } catch (error) {
-      console.error("Error al reproducir la señal:", error);
-      if (overlay) {
-        overlay.classList.remove("is-hidden");
-        overlay.innerHTML = `
-          <img src="assets/logo-nueva-tv-chanchamayo.webp" alt="Nueva TV" />
-          <h3>Presiona reproducir</h3>
-          <p>El navegador necesita tu autorización para iniciar la transmisión.</p>
-          <button class="btn btn--primary" type="button" id="retryPlaybackBtn">▶ Iniciar señal</button>
-        `;
-        $("#retryPlaybackBtn")?.addEventListener("click", playStream, { once: true });
+  // La señal se conecta al cargar la página, pero no se reproduce todavía.
+  // Esto permite que el primer toque en móvil se use directamente para play().
+  prepareStream();
+
+  function requestTvPlayback() {
+    if (!streamPrepared && !prepareStream()) return Promise.resolve(false);
+
+    if (hls) {
+      try {
+        hls.startLoad(-1);
+      } catch (_error) {
+        // MEDIA_ATTACHED iniciará la carga en cuanto el elemento esté listo.
       }
     }
-  };
+    video.muted = false;
 
-  startBtn?.addEventListener("click", playStream);
+    let playAttempt;
+    try {
+      // Debe ejecutarse directamente dentro del evento click/touch.
+      playAttempt = video.play();
+    } catch (error) {
+      console.error("Error al iniciar la señal:", error);
+      showPlaybackPermissionMessage();
+      return Promise.resolve(false);
+    }
+
+    if (!playAttempt || typeof playAttempt.then !== "function") {
+      hideOverlay();
+      return Promise.resolve();
+    }
+
+    playAttempt
+      .then(() => hideOverlay())
+      .catch((error) => {
+        console.error("El navegador bloqueó o interrumpió la reproducción:", error);
+        showPlaybackPermissionMessage();
+      });
+
+    return playAttempt;
+  }
+
+  startBtn?.addEventListener("click", () => {
+    void requestTvPlayback();
+  });
 
   directPlayButtons.forEach((button) => {
+    // Un toque temprano ayuda a preparar la conexión antes del evento click.
+    button.addEventListener("pointerdown", prepareStream, { passive: true });
+    button.addEventListener("touchstart", prepareStream, { passive: true });
+
     button.addEventListener("click", (event) => {
       event.preventDefault();
-      void playStream();
-      tvSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+      // Primero play(); después el desplazamiento. Este orden es importante en móvil.
+      void requestTvPlayback();
+      window.requestAnimationFrame(() => {
+        tvSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
     });
   });
 
   video.addEventListener("play", hideOverlay);
+  video.addEventListener("playing", hideOverlay);
   window.addEventListener("beforeunload", () => hls?.destroy(), { once: true });
 }
-
 
 function setupRadioPlayer() {
   const audio = $("#radioPlayer");
@@ -199,6 +275,8 @@ function setupRadioPlayer() {
 
   directLink?.setAttribute("href", RADIO_STREAM_URL);
   audio.volume = Number(volume?.value ?? 0.82);
+  audio.preload = "auto";
+  audio.setAttribute("playsinline", "");
 
   const securePage = window.location.protocol === "https:";
   const secureStream = RADIO_STREAM_TLS_URL.trim();
@@ -226,31 +304,60 @@ function setupRadioPlayer() {
   if (requiresSecureStream) {
     notice.hidden = false;
     toggleText.textContent = "Abrir señal de radio";
-    setState("error", "Se necesita la URL HTTPS", "La señal HTTP no puede integrarse dentro de GitHub Pages");
+    setState("error", "Se necesita la URL HTTPS", "La señal HTTP no puede integrarse dentro de una página segura");
 
     requestRadioPlayback = () => {
       window.open(RADIO_STREAM_URL, "_blank", "noopener");
+      return Promise.resolve();
     };
 
     toggle.addEventListener("click", requestRadioPlayback);
   } else {
-    audio.src = streamUrl;
+    if (audio.src !== streamUrl) audio.src = streamUrl;
 
-    requestRadioPlayback = async () => {
-      if (!audio.paused) return;
+    // Inicia la conexión de red sin reproducir sonido. Algunos móviles pueden
+    // ignorar preload, pero mantener el src listo evita trabajo extra al tocar.
+    try {
+      audio.load();
+    } catch (error) {
+      console.debug("El navegador aplazó la precarga de la radio:", error);
+    }
+
+    requestRadioPlayback = () => {
+      if (!audio.paused && !audio.ended) return Promise.resolve();
+
+      audio.muted = false;
+
+      let playAttempt;
+      try {
+        // play() se llama antes de desplazar, esperar o realizar tareas asíncronas.
+        playAttempt = audio.play();
+      } catch (error) {
+        console.error("No se pudo iniciar la radio:", error);
+        setState("error", "No se pudo conectar", "Comprueba que la señal esté al aire o abre el enlace directo");
+        setButtonPlaying(false);
+        return Promise.resolve(false);
+      }
 
       toggle.disabled = true;
       setState("connecting", "Conectando…", "Buscando la señal de Radio La Nueva 97 FM");
 
-      try {
-        await audio.play();
-      } catch (error) {
-        console.error("No se pudo reproducir la radio:", error);
-        setState("error", "No se pudo conectar", "Comprueba que la señal esté al aire o abre el enlace directo");
-        setButtonPlaying(false);
-      } finally {
+      if (!playAttempt || typeof playAttempt.then !== "function") {
         toggle.disabled = false;
+        return Promise.resolve();
       }
+
+      playAttempt
+        .catch((error) => {
+          console.error("El navegador bloqueó o interrumpió la radio:", error);
+          setState("error", "No se pudo conectar", "Toca nuevamente el botón del reproductor o abre la señal directa");
+          setButtonPlaying(false);
+        })
+        .finally(() => {
+          toggle.disabled = false;
+        });
+
+      return playAttempt;
     };
 
     toggle.addEventListener("click", () => {
@@ -287,10 +394,27 @@ function setupRadioPlayer() {
 
   const radioSection = $("#radio");
   $$('[data-play-radio]').forEach((button) => {
+    const warmRadioConnection = () => {
+      if (audio.readyState === HTMLMediaElement.HAVE_NOTHING) {
+        try {
+          audio.load();
+        } catch (_error) {
+          // La reproducción seguirá intentándose directamente en click.
+        }
+      }
+    };
+
+    button.addEventListener("pointerdown", warmRadioConnection, { passive: true });
+    button.addEventListener("touchstart", warmRadioConnection, { passive: true });
+
     button.addEventListener("click", (event) => {
       event.preventDefault();
+
+      // Primero play(); después el desplazamiento para conservar el gesto móvil.
       void requestRadioPlayback();
-      radioSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.requestAnimationFrame(() => {
+        radioSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
     });
   });
 
