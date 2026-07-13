@@ -14,7 +14,7 @@
 
   <link rel="icon" type="image/svg+xml" href="assets/favicon.png" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=20260713-1" />
 </head>
 <body>
   <a class="skip-link" href="#contenido">Saltar al contenido</a>
@@ -41,7 +41,7 @@
         </ul>
       </nav>
 
-      <a class="btn btn--small btn--primary nav-cta" href="#radio">▶ Escuchar radio</a>
+      <a class="btn btn--small btn--primary nav-cta" href="#radio" data-play-radio aria-controls="radioPlayer">▶ Escuchar radio</a>
     </div>
   </header>
 
@@ -54,8 +54,8 @@
           <p class="hero__lead">Rediseñada con la identidad del logotipo: púrpura intenso, turquesa vibrante y un estilo visual televisivo, limpio y profesional para transmitir en vivo desde cualquier dispositivo.</p>
 
           <div class="hero__actions">
-            <a class="btn btn--primary" href="#radio">▶ Escuchar radio</a>
-            <a class="btn btn--ghost" href="#en-vivo">▣ Ver televisión</a>
+            <a class="btn btn--primary" href="#radio" data-play-radio aria-controls="radioPlayer">▶ Escuchar radio</a>
+            <a class="btn btn--ghost" href="#en-vivo" data-play-tv aria-controls="hlsPlayer">▣ Ver televisión</a>
             <a class="btn btn--ghost" href="https://wa.me/51901996052?text=Hola%20Nueva%20TV%2C%20quiero%20informaci%C3%B3n" target="_blank" rel="noopener">WhatsApp</a>
           </div>
 
@@ -83,7 +83,7 @@
                 <div class="hero-logo-disc">
                   <div class="hero-logo-disc__ring"></div>
                   <img src="assets/logo-nueva-tv-chanchamayo-circle.webp" alt="Logotipo de Nueva TV Chanchamayo dentro de un círculo" class="hero-card__logo-icon hero-card__logo-full" />
-                  <button class="play-button" type="button" data-scroll-to="en-vivo" aria-label="Ir a la transmisión en vivo">▶</button>
+                  <button class="play-button" type="button" data-play-tv aria-controls="hlsPlayer" aria-label="Reproducir la transmisión de Nueva TV">▶</button>
                 </div>
               </div>
             </div>
@@ -435,7 +435,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script src="script.js"></script>
+  <script src="script.js?v=20260713-1"></script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",

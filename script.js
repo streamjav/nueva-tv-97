@@ -108,44 +108,75 @@ function setupPlayer() {
   const video = $("#hlsPlayer");
   const overlay = $("#videoOverlay");
   const startBtn = $("#startPlaybackBtn");
+  const directPlayButtons = $$('[data-play-tv]');
+  const tvSection = $("#en-vivo");
   if (!video) return;
+
+  let hls = null;
+  let streamInitialized = false;
+
+  const initializeStream = () => {
+    if (streamInitialized) return true;
+
+    if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      video.src = HLS_STREAM_URL;
+      streamInitialized = true;
+      return true;
+    }
+
+    if (window.Hls && window.Hls.isSupported()) {
+      hls = new window.Hls({
+        enableWorker: true,
+        lowLatencyMode: true
+      });
+      hls.loadSource(HLS_STREAM_URL);
+      hls.attachMedia(video);
+      streamInitialized = true;
+      return true;
+    }
+
+    if (overlay) {
+      overlay.innerHTML = `
+        <img src="assets/logo-nueva-tv-chanchamayo.webp" alt="Nueva TV" />
+        <h3>Navegador no compatible</h3>
+        <p>Prueba en un navegador moderno o abre la señal desde un dispositivo compatible con HLS.</p>
+      `;
+    }
+    return false;
+  };
 
   const playStream = async () => {
     try {
-      if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        video.src = HLS_STREAM_URL;
-      } else if (window.Hls && window.Hls.isSupported()) {
-        const hls = new window.Hls({
-          enableWorker: true,
-          lowLatencyMode: true
-        });
-        hls.loadSource(HLS_STREAM_URL);
-        hls.attachMedia(video);
-      } else {
+      if (!initializeStream()) return;
+      hideOverlay();
+      await video.play();
+    } catch (error) {
+      console.error("Error al reproducir la señal:", error);
+      if (overlay) {
+        overlay.classList.remove("is-hidden");
         overlay.innerHTML = `
           <img src="assets/logo-nueva-tv-chanchamayo.webp" alt="Nueva TV" />
-          <h3>Navegador no compatible</h3>
-          <p>Prueba en un navegador moderno o abre la señal desde un dispositivo compatible con HLS.</p>
+          <h3>Presiona reproducir</h3>
+          <p>El navegador necesita tu autorización para iniciar la transmisión.</p>
+          <button class="btn btn--primary" type="button" id="retryPlaybackBtn">▶ Iniciar señal</button>
         `;
-        return;
+        $("#retryPlaybackBtn")?.addEventListener("click", playStream, { once: true });
       }
-
-      hideOverlay();
-      await video.play().catch(() => {
-        hideOverlay();
-      });
-    } catch (error) {
-      console.error("Error al cargar la señal:", error);
-      overlay.innerHTML = `
-        <img src="assets/logo-nueva-tv-chanchamayo.webp" alt="Nueva TV" />
-        <h3>No se pudo cargar la señal</h3>
-        <p>Verifica la conectividad o la URL del streaming.</p>
-      `;
     }
   };
 
   startBtn?.addEventListener("click", playStream);
+
+  directPlayButtons.forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      void playStream();
+      tvSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
+
   video.addEventListener("play", hideOverlay);
+  window.addEventListener("beforeunload", () => hls?.destroy(), { once: true });
 }
 
 
@@ -190,22 +221,23 @@ function setupRadioPlayer() {
     toggleText.textContent = isPlaying ? "Pausar radio" : "Escuchar ahora";
   }
 
+  let requestRadioPlayback;
+
   if (requiresSecureStream) {
     notice.hidden = false;
     toggleText.textContent = "Abrir señal de radio";
     setState("error", "Se necesita la URL HTTPS", "La señal HTTP no puede integrarse dentro de GitHub Pages");
 
-    toggle.addEventListener("click", () => {
+    requestRadioPlayback = () => {
       window.open(RADIO_STREAM_URL, "_blank", "noopener");
-    });
+    };
+
+    toggle.addEventListener("click", requestRadioPlayback);
   } else {
     audio.src = streamUrl;
 
-    toggle.addEventListener("click", async () => {
-      if (!audio.paused) {
-        audio.pause();
-        return;
-      }
+    requestRadioPlayback = async () => {
+      if (!audio.paused) return;
 
       toggle.disabled = true;
       setState("connecting", "Conectando…", "Buscando la señal de Radio La Nueva 97 FM");
@@ -219,6 +251,14 @@ function setupRadioPlayer() {
       } finally {
         toggle.disabled = false;
       }
+    };
+
+    toggle.addEventListener("click", () => {
+      if (!audio.paused) {
+        audio.pause();
+        return;
+      }
+      void requestRadioPlayback();
     });
 
     audio.addEventListener("playing", () => {
@@ -244,6 +284,15 @@ function setupRadioPlayer() {
       setButtonPlaying(false);
     });
   }
+
+  const radioSection = $("#radio");
+  $$('[data-play-radio]').forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      void requestRadioPlayback();
+      radioSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
 
   volume?.addEventListener("input", () => {
     const value = Number(volume.value);

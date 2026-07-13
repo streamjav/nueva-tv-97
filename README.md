@@ -42,3 +42,8 @@ La señal segura configurada es:
 `https://s26.myradiostream.com/22416/listen.mp3`
 
 El reproductor está preparado para funcionar dentro de GitHub Pages y en dominios publicados mediante HTTPS. El visitante debe pulsar **Escuchar ahora**, ya que los navegadores normalmente bloquean el inicio automático de audio.
+
+
+## Reproducción directa desde la portada
+
+Los botones **Escuchar radio** y **Ver televisión** de la portada inician la señal correspondiente con un solo clic y desplazan suavemente al reproductor. Los controles internos siguen disponibles para pausar, cambiar volumen o reiniciar la señal.
