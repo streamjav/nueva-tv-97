@@ -937,51 +937,75 @@ button, input, textarea { font: inherit; }
 
 /* =========================================================
    Integración del logotipo Nueva TV Chanchamayo - julio 2026
+   Versión circular dentro de la escena animada
    ========================================================= */
 .brand__header-logo,
 .brand__footer-logo {
   mix-blend-mode: screen;
 }
 
+/* El contenedor permanece circular y forma parte real del HTML/CSS. */
 .hero-logo-disc {
-  width: 76%;
-  aspect-ratio: 4 / 3;
-  border-radius: 28px;
-  overflow: hidden;
-  background: #030c24;
+  width: 61%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  overflow: visible;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 36% 30%, rgba(32, 74, 154, 0.52), transparent 35%),
+    radial-gradient(circle at center, #101a35 0%, #071126 72%, #030916 100%);
   box-shadow:
     inset 0 0 0 1px rgba(255,255,255,0.16),
-    0 22px 54px rgba(0,0,0,0.44),
-    0 0 36px rgba(27,137,255,0.16);
+    0 22px 54px rgba(0,0,0,0.48),
+    0 0 42px rgba(23,132,255,0.18);
 }
 
 .hero-logo-disc::before {
-  inset: 0;
-  border-radius: inherit;
+  inset: 6%;
+  border-radius: 50%;
+  z-index: 0;
   background:
-    radial-gradient(circle at 70% 22%, rgba(0,153,255,0.20), transparent 34%),
-    linear-gradient(180deg, rgba(255,255,255,0.03), transparent 42%);
+    radial-gradient(circle at 66% 24%, rgba(0,178,255,0.20), transparent 33%),
+    radial-gradient(circle at 32% 70%, rgba(69,0,184,0.20), transparent 42%),
+    linear-gradient(180deg, rgba(255,255,255,0.035), transparent 48%);
+  box-shadow: inset 0 0 28px rgba(0,0,0,0.20);
   pointer-events: none;
 }
 
+/* Aro multicolor animado, equivalente al diseño anterior. */
 .hero-logo-disc__ring {
-  inset: -4px;
-  border-radius: 32px;
-  background: linear-gradient(135deg, #08c8ff, #1d64ff 45%, #dceeff 70%, #08c8ff);
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  padding: 2px;
-  animation: none;
-  filter: drop-shadow(0 0 18px rgba(25,135,255,0.34));
+  inset: -4.5%;
+  border-radius: 50%;
+  z-index: 1;
+  background: conic-gradient(
+    from 220deg,
+    #ff3f64,
+    #ff8a00,
+    #c7dd42,
+    #40e6bd,
+    #14d4ff,
+    #78a8ff,
+    #ff3f64
+  );
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 10px), #000 calc(100% - 9px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 10px), #000 calc(100% - 9px));
+  animation: spin 10s linear infinite;
+  filter:
+    drop-shadow(0 0 12px rgba(20,212,255,0.26))
+    drop-shadow(0 0 16px rgba(255,77,91,0.20));
 }
 
+/* Imagen recortada en círculo: conserva N, Nueva TV y Chanchamayo. */
 .hero-card__logo-full {
-  width: 100%;
-  max-width: 100%;
-  border-radius: 24px;
+  width: 91%;
+  max-width: 91%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
   object-fit: cover;
-  filter: none;
+  z-index: 2;
+  filter:
+    drop-shadow(0 10px 22px rgba(0,0,0,0.38))
+    drop-shadow(0 0 15px rgba(0,119,255,0.18));
 }
 
 .video-overlay img {
@@ -992,6 +1016,11 @@ button, input, textarea { font: inherit; }
 }
 
 @media (max-width: 640px) {
-  .hero-logo-disc { width: 80%; }
+  .hero-logo-disc { width: 66%; }
+  .hero-card__logo-full { width: 92%; max-width: 92%; }
   .video-overlay img { width: min(72%, 280px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-logo-disc__ring { animation: none; }
 }

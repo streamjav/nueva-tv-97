@@ -1,64 +1,32 @@
-# Nueva TV Chanchamayo - Web lista para GitHub Pages
+# Nueva TV Chanchamayo — sitio web
 
-Este paquete contiene la versión rediseñada de la web de **Nueva TV**, alineada al logotipo mejorado y configurada con los datos reales proporcionados.
+Proyecto estático listo para GitHub Pages o para subir a `public_html`.
 
-## Cambio aplicado en esta versión
+## Archivos principales
 
-- Integración completa del nuevo logotipo **Nueva TV Chanchamayo** en encabezado, portada, reproductor, pie de página, favicon y vista previa social.
-- Optimización del logotipo a WebP para acelerar la carga sin perder calidad visual.
+- `index.html`: estructura completa de la página.
+- `styles.css`: diseño responsive y animaciones.
+- `script.js`: menú, reloj, programación y reproductor HLS.
+- `assets/`: logotipos e imágenes optimizadas.
 
-## Configuración existente conservada
+## Ajuste de esta versión
 
-- Rediseño visual basado en los colores del logotipo:
-  - púrpura intenso
-  - turquesa / aqua
-  - blanco
-- Integración de la señal HLS/M3U8:
-  - `https://183.bozztv.com/ssh101/ssh101/radiolanueva97/playlist.m3u8`
-- Facebook oficial:
-  - `https://www.facebook.com/nuevatvchanchamayo`
-- WhatsApp oficial:
-  - `+51 901 996 052`
-- Compatibilidad con **GitHub Pages**.
-- Reproductor preparado con **Hls.js** para navegadores sin soporte nativo de M3U8.
+El logotipo Nueva TV Chanchamayo fue integrado dentro del círculo animado de la tarjeta principal mediante HTML y CSS. El recurso específico utilizado es:
 
-## Archivos incluidos
+`assets/logo-nueva-tv-chanchamayo-circle.webp`
 
-- `index.html` - estructura principal.
-- `styles.css` - diseño visual.
-- `script.js` - interacción, programación y reproductor HLS.
-- `assets/logo-nueva-tv-chanchamayo.webp` - logotipo nuevo optimizado para la web.
-- `assets/logo-nueva-tv-chanchamayo.png` - archivo PNG original del logotipo.
-- `assets/favicon.png` - ícono del sitio basado en el nuevo símbolo.
-- `assets/og-image.jpg` - vista previa para compartir el sitio.
+No es una captura estática: el aro, las órbitas, el reloj y los puntos continúan funcionando como elementos de la página.
 
-## Cómo probar en tu computadora
+## Probar localmente
 
-1. Descomprime el ZIP.
-2. Abre la carpeta `nueva-tv-97`.
-3. Haz doble clic en `index.html`.
+Puedes abrir `index.html` directamente o iniciar un servidor local:
 
-## Cómo subir a GitHub Pages
+```bash
+python -m http.server 8000
+```
 
-1. Crea un repositorio en GitHub, por ejemplo: `nueva-tv`.
-2. Sube todos los archivos de la carpeta al repositorio.
-3. Ve a:
-   - `Settings` → `Pages`
-4. En `Build and deployment` selecciona:
-   - Source: `Deploy from a branch`
-   - Branch: `main`
-   - Folder: `/root`
-5. Guarda los cambios.
-6. GitHub te generará una URL similar a:
-   - `https://tuusuario.github.io/nueva-tv/`
+Luego visita `http://localhost:8000`.
 
-## Personalizaciones futuras recomendadas
+## GitHub Pages
 
-- Reemplazar la programación de muestra por la programación oficial.
-- Agregar fotos reales del equipo.
-- Enlazar videos reales del canal.
-- Añadir dominio personalizado cuando el cliente lo apruebe.
-
-## Nota técnica
-
-La señal HLS ya está configurada en `script.js`, por lo que no necesitas volver a pegar la URL, salvo que la cambies más adelante.
+Sube todo el contenido de esta carpeta a la raíz del repositorio y activa GitHub Pages desde la rama principal.
