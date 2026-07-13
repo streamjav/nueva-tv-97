@@ -118,7 +118,7 @@ function setupPlayer() {
         hls.attachMedia(video);
       } else {
         overlay.innerHTML = `
-          <img src="assets/logo.svg" alt="Nueva TV" />
+          <img src="assets/logo-nueva-tv-chanchamayo.webp" alt="Nueva TV" />
           <h3>Navegador no compatible</h3>
           <p>Prueba en un navegador moderno o abre la señal desde un dispositivo compatible con HLS.</p>
         `;
@@ -132,7 +132,7 @@ function setupPlayer() {
     } catch (error) {
       console.error("Error al cargar la señal:", error);
       overlay.innerHTML = `
-        <img src="assets/logo.svg" alt="Nueva TV" />
+        <img src="assets/logo-nueva-tv-chanchamayo.webp" alt="Nueva TV" />
         <h3>No se pudo cargar la señal</h3>
         <p>Verifica la conectividad o la URL del streaming.</p>
       `;

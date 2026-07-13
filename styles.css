@@ -934,3 +934,64 @@ button, input, textarea { font: inherit; }
     align-items: stretch;
   }
 }
+
+/* =========================================================
+   Integración del logotipo Nueva TV Chanchamayo - julio 2026
+   ========================================================= */
+.brand__header-logo,
+.brand__footer-logo {
+  mix-blend-mode: screen;
+}
+
+.hero-logo-disc {
+  width: 76%;
+  aspect-ratio: 4 / 3;
+  border-radius: 28px;
+  overflow: hidden;
+  background: #030c24;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.16),
+    0 22px 54px rgba(0,0,0,0.44),
+    0 0 36px rgba(27,137,255,0.16);
+}
+
+.hero-logo-disc::before {
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 70% 22%, rgba(0,153,255,0.20), transparent 34%),
+    linear-gradient(180deg, rgba(255,255,255,0.03), transparent 42%);
+  pointer-events: none;
+}
+
+.hero-logo-disc__ring {
+  inset: -4px;
+  border-radius: 32px;
+  background: linear-gradient(135deg, #08c8ff, #1d64ff 45%, #dceeff 70%, #08c8ff);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  padding: 2px;
+  animation: none;
+  filter: drop-shadow(0 0 18px rgba(25,135,255,0.34));
+}
+
+.hero-card__logo-full {
+  width: 100%;
+  max-width: 100%;
+  border-radius: 24px;
+  object-fit: cover;
+  filter: none;
+}
+
+.video-overlay img {
+  width: min(56%, 320px);
+  border-radius: 18px;
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 14px 28px rgba(0,0,0,0.34));
+}
+
+@media (max-width: 640px) {
+  .hero-logo-disc { width: 80%; }
+  .video-overlay img { width: min(72%, 280px); }
+}

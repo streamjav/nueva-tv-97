@@ -1,8 +1,13 @@
-# Nueva TV - Web rediseñada para GitHub Pages
+# Nueva TV Chanchamayo - Web lista para GitHub Pages
 
 Este paquete contiene la versión rediseñada de la web de **Nueva TV**, alineada al logotipo mejorado y configurada con los datos reales proporcionados.
 
-## Cambios aplicados
+## Cambio aplicado en esta versión
+
+- Integración completa del nuevo logotipo **Nueva TV Chanchamayo** en encabezado, portada, reproductor, pie de página, favicon y vista previa social.
+- Optimización del logotipo a WebP para acelerar la carga sin perder calidad visual.
+
+## Configuración existente conservada
 
 - Rediseño visual basado en los colores del logotipo:
   - púrpura intenso
@@ -22,9 +27,10 @@ Este paquete contiene la versión rediseñada de la web de **Nueva TV**, alinead
 - `index.html` - estructura principal.
 - `styles.css` - diseño visual.
 - `script.js` - interacción, programación y reproductor HLS.
-- `assets/logo.svg` - logotipo horizontal.
-- `assets/favicon.svg` - ícono del sitio.
-- `assets/og-image.svg` - imagen de vista previa.
+- `assets/logo-nueva-tv-chanchamayo.webp` - logotipo nuevo optimizado para la web.
+- `assets/logo-nueva-tv-chanchamayo.png` - archivo PNG original del logotipo.
+- `assets/favicon.png` - ícono del sitio basado en el nuevo símbolo.
+- `assets/og-image.jpg` - vista previa para compartir el sitio.
 
 ## Cómo probar en tu computadora
 
