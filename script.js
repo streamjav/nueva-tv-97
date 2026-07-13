@@ -1,5 +1,12 @@
 const HLS_STREAM_URL = "https://183.bozztv.com/ssh101/ssh101/radiolanueva97/playlist.m3u8";
 
+// Señal proporcionada para Radio La Nueva 97 FM.
+const RADIO_STREAM_URL = "http://s26.myradiostream.com:22416/";
+
+// IMPORTANTE: cuando MyRadioStream te entregue la dirección TLS/HTTPS,
+// pégala aquí para que la radio suene dentro de GitHub Pages y dominios HTTPS.
+const RADIO_STREAM_TLS_URL = "";
+
 const scheduleData = {
   lunes: [
     ["06:00", "Primera Edición", "Noticias, agenda local y titulares", "Noticias"],
@@ -143,6 +150,119 @@ function setupPlayer() {
   video.addEventListener("play", hideOverlay);
 }
 
+
+function setupRadioPlayer() {
+  const audio = $("#radioPlayer");
+  const toggle = $("#radioToggle");
+  const toggleIcon = $("#radioToggleIcon");
+  const toggleText = $("#radioToggleText");
+  const status = $("#radioStatus");
+  const detail = $("#radioDetail");
+  const statusDot = $("#radioStatusDot");
+  const equalizer = $("#radioEqualizer");
+  const volume = $("#radioVolume");
+  const volumeValue = $("#radioVolumeValue");
+  const mute = $("#radioMute");
+  const notice = $("#radioSecureNotice");
+  const directLink = $("#radioDirectLink");
+
+  if (!audio || !toggle) return;
+
+  directLink?.setAttribute("href", RADIO_STREAM_URL);
+  audio.volume = Number(volume?.value ?? 0.82);
+
+  const securePage = window.location.protocol === "https:";
+  const secureStream = RADIO_STREAM_TLS_URL.trim();
+  const streamUrl = securePage ? secureStream : RADIO_STREAM_URL;
+  const requiresSecureStream = securePage && !secureStream;
+
+  function setState(state, title, subtitle) {
+    status.textContent = title;
+    detail.textContent = subtitle;
+    statusDot.className = "radio-status-dot";
+    statusDot.classList.toggle("is-connecting", state === "connecting");
+    statusDot.classList.toggle("is-playing", state === "playing");
+    statusDot.classList.toggle("is-error", state === "error");
+    equalizer?.classList.toggle("is-playing", state === "playing");
+  }
+
+  function setButtonPlaying(isPlaying) {
+    toggle.setAttribute("aria-pressed", String(isPlaying));
+    toggleIcon.textContent = isPlaying ? "❚❚" : "▶";
+    toggleText.textContent = isPlaying ? "Pausar radio" : "Escuchar ahora";
+  }
+
+  if (requiresSecureStream) {
+    notice.hidden = false;
+    toggleText.textContent = "Abrir señal de radio";
+    setState("error", "Se necesita la URL HTTPS", "La señal HTTP no puede integrarse dentro de GitHub Pages");
+
+    toggle.addEventListener("click", () => {
+      window.open(RADIO_STREAM_URL, "_blank", "noopener");
+    });
+  } else {
+    audio.src = streamUrl;
+
+    toggle.addEventListener("click", async () => {
+      if (!audio.paused) {
+        audio.pause();
+        return;
+      }
+
+      toggle.disabled = true;
+      setState("connecting", "Conectando…", "Buscando la señal de Radio La Nueva 97 FM");
+
+      try {
+        await audio.play();
+      } catch (error) {
+        console.error("No se pudo reproducir la radio:", error);
+        setState("error", "No se pudo conectar", "Comprueba que la señal esté al aire o abre el enlace directo");
+        setButtonPlaying(false);
+      } finally {
+        toggle.disabled = false;
+      }
+    });
+
+    audio.addEventListener("playing", () => {
+      setState("playing", "Transmitiendo en vivo", "Radio La Nueva 97 FM · Chanchamayo");
+      setButtonPlaying(true);
+    });
+
+    audio.addEventListener("pause", () => {
+      setState("idle", "Reproducción pausada", "Presiona escuchar para continuar");
+      setButtonPlaying(false);
+    });
+
+    audio.addEventListener("waiting", () => {
+      setState("connecting", "Cargando señal…", "La conexión puede tardar unos segundos");
+    });
+
+    audio.addEventListener("stalled", () => {
+      setState("connecting", "Reconectando…", "Esperando respuesta del servidor de radio");
+    });
+
+    audio.addEventListener("error", () => {
+      setState("error", "Señal no disponible", "Comprueba que la radio esté transmitiendo o abre el enlace directo");
+      setButtonPlaying(false);
+    });
+  }
+
+  volume?.addEventListener("input", () => {
+    const value = Number(volume.value);
+    audio.volume = value;
+    audio.muted = false;
+    volumeValue.textContent = `${Math.round(value * 100)}%`;
+    mute.textContent = value === 0 ? "🔇" : value < 0.5 ? "🔉" : "🔊";
+    mute.setAttribute("aria-label", "Silenciar radio");
+  });
+
+  mute?.addEventListener("click", () => {
+    audio.muted = !audio.muted;
+    mute.textContent = audio.muted ? "🔇" : audio.volume < 0.5 ? "🔉" : "🔊";
+    mute.setAttribute("aria-label", audio.muted ? "Activar sonido de la radio" : "Silenciar radio");
+  });
+}
+
 function setupScrollButtons() {
   $$('[data-scroll-to]').forEach((button) => {
     button.addEventListener("click", () => {
@@ -154,15 +274,15 @@ function setupScrollButtons() {
 
 function setupFloatingPlayer() {
   const player = $("#floatingPlayer");
-  const liveSection = $("#en-vivo");
-  if (!player || !liveSection) return;
+  const radioSection = $("#radio");
+  if (!player || !radioSection) return;
 
   const toggle = () => {
     const scrolled = window.scrollY > 560;
-    const liveTop = liveSection.getBoundingClientRect().top;
-    const liveBottom = liveSection.getBoundingClientRect().bottom;
-    const overLive = liveTop < window.innerHeight && liveBottom > 120;
-    player.classList.toggle("is-visible", scrolled && !overLive);
+    const radioTop = radioSection.getBoundingClientRect().top;
+    const radioBottom = radioSection.getBoundingClientRect().bottom;
+    const overRadio = radioTop < window.innerHeight && radioBottom > 120;
+    player.classList.toggle("is-visible", scrolled && !overRadio);
   };
 
   toggle();
@@ -213,6 +333,7 @@ function init() {
   setupMenu();
   setupScheduleTabs();
   setupPlayer();
+  setupRadioPlayer();
   setupScrollButtons();
   setupFloatingPlayer();
   setupReveal();

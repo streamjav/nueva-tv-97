@@ -1,0 +1,24 @@
+RADIO LA NUEVA 97 FM
+====================
+
+Señal proporcionada:
+http://s26.myradiostream.com:22416/
+
+La página ya incluye el reproductor, botón reproducir/pausar, volumen,
+estado de conexión, enlace directo y diseño responsive.
+
+IMPORTANTE PARA GITHUB PAGES / HTTPS
+------------------------------------
+GitHub Pages usa HTTPS. La señal proporcionada usa HTTP. Para que el audio
+se reproduzca dentro de la página publicada en GitHub, solicita en el panel
+de MyRadioStream la URL TLS/HTTPS de la estación.
+
+Después abre script.js y reemplaza esta línea:
+
+const RADIO_STREAM_TLS_URL = "";
+
+por:
+
+const RADIO_STREAM_TLS_URL = "TU_URL_HTTPS_DE_MYRADIOSTREAM";
+
+No es necesario modificar el HTML ni el CSS.

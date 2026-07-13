@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Nueva TV | Señal Digital en Vivo</title>
-  <meta name="description" content="Nueva TV: señal digital en vivo con programación, noticias, videos, redes sociales y contacto directo por WhatsApp." />
+  <title>Radio La Nueva 97 FM y Nueva TV | Señales en Vivo</title>
+  <meta name="description" content="Escucha Radio La Nueva 97 FM y mira la señal digital de Nueva TV Chanchamayo en vivo, con noticias, música, programación y contacto directo." />
   <meta name="theme-color" content="#01071d" />
 
-  <meta property="og:title" content="Nueva TV | Señal Digital en Vivo" />
-  <meta property="og:description" content="Mira la señal en vivo de Nueva TV, revisa la programación y conecta por Facebook y WhatsApp." />
+  <meta property="og:title" content="Radio La Nueva 97 FM y Nueva TV | En Vivo" />
+  <meta property="og:description" content="Escucha Radio La Nueva 97 FM y mira Nueva TV Chanchamayo en vivo desde cualquier dispositivo." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="assets/og-image.jpg" />
 
@@ -31,7 +31,8 @@
 
       <nav aria-label="Navegación principal">
         <ul class="site-menu" id="site-menu">
-          <li><a href="#en-vivo">En vivo</a></li>
+          <li><a href="#radio">Radio</a></li>
+          <li><a href="#en-vivo">TV en vivo</a></li>
           <li><a href="#programacion">Programación</a></li>
           <li><a href="#noticias">Noticias</a></li>
           <li><a href="#videos">Videos</a></li>
@@ -40,7 +41,7 @@
         </ul>
       </nav>
 
-      <a class="btn btn--small btn--primary nav-cta" href="#en-vivo">▶ Ver en vivo</a>
+      <a class="btn btn--small btn--primary nav-cta" href="#radio">▶ Escuchar radio</a>
     </div>
   </header>
 
@@ -53,7 +54,8 @@
           <p class="hero__lead">Rediseñada con la identidad del logotipo: púrpura intenso, turquesa vibrante y un estilo visual televisivo, limpio y profesional para transmitir en vivo desde cualquier dispositivo.</p>
 
           <div class="hero__actions">
-            <a class="btn btn--primary" href="#en-vivo">▶ Ver transmisión</a>
+            <a class="btn btn--primary" href="#radio">▶ Escuchar radio</a>
+            <a class="btn btn--ghost" href="#en-vivo">▣ Ver televisión</a>
             <a class="btn btn--ghost" href="https://wa.me/51901996052?text=Hola%20Nueva%20TV%2C%20quiero%20informaci%C3%B3n" target="_blank" rel="noopener">WhatsApp</a>
           </div>
 
@@ -97,10 +99,81 @@
     <section class="ticker" aria-label="Titulares importantes">
       <div class="ticker__label">Al aire</div>
       <div class="ticker__track">
-        <span>Señal en vivo disponible desde celular, tablet y computadora.</span>
+        <span>Radio La Nueva 97 FM en vivo desde celular, tablet y computadora.</span>
         <span>Síguenos en Facebook: Nueva TV Chanchamayo.</span>
         <span>Atención comercial y contacto directo por WhatsApp.</span>
         <span>Diseño optimizado para GitHub Pages y dominio propio.</span>
+      </div>
+    </section>
+
+
+    <section class="section section-pad radio-section" id="radio">
+      <div class="container">
+        <div class="section-heading reveal">
+          <p class="eyebrow"><span class="live-dot"></span> Radio en vivo</p>
+          <h2>Escucha Radio La Nueva 97 FM</h2>
+          <p>Un reproductor integrado con acceso directo a la señal radial, controles de reproducción, volumen y estado de conexión.</p>
+        </div>
+
+        <div class="radio-player-card reveal">
+          <div class="radio-player-visual" aria-hidden="true">
+            <div class="radio-glow radio-glow--one"></div>
+            <div class="radio-glow radio-glow--two"></div>
+            <div class="radio-signal-ring radio-signal-ring--one"></div>
+            <div class="radio-signal-ring radio-signal-ring--two"></div>
+            <div class="radio-signal-ring radio-signal-ring--three"></div>
+            <div class="radio-frequency-disc">
+              <span>97</span>
+              <small>FM</small>
+            </div>
+            <div class="radio-equalizer" id="radioEqualizer">
+              <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+            </div>
+          </div>
+
+          <div class="radio-player-content">
+            <div class="radio-player-heading">
+              <span class="pill pill--live">● RADIO EN VIVO</span>
+              <span class="radio-frequency-label">97 FM</span>
+            </div>
+
+            <h3>Radio La Nueva 97 FM</h3>
+            <p class="radio-player-description">Música, noticias, entrevistas y programación local desde Chanchamayo. Presiona el botón para comenzar a escuchar.</p>
+
+            <audio id="radioPlayer" preload="none" aria-label="Reproductor de Radio La Nueva 97 FM"></audio>
+
+            <div class="radio-main-controls">
+              <button class="radio-play-button" id="radioToggle" type="button" aria-pressed="false">
+                <span class="radio-play-button__icon" id="radioToggleIcon" aria-hidden="true">▶</span>
+                <span id="radioToggleText">Escuchar ahora</span>
+              </button>
+
+              <div class="radio-connection-status" role="status" aria-live="polite">
+                <span class="radio-status-dot" id="radioStatusDot"></span>
+                <div>
+                  <strong id="radioStatus">Lista para reproducir</strong>
+                  <span id="radioDetail">Señal online de Radio La Nueva 97 FM</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="radio-volume-row">
+              <button class="radio-mute-button" id="radioMute" type="button" aria-label="Silenciar radio">🔊</button>
+              <label for="radioVolume">Volumen</label>
+              <input id="radioVolume" type="range" min="0" max="1" step="0.01" value="0.82" aria-label="Volumen de la radio" />
+              <output id="radioVolumeValue" for="radioVolume">82%</output>
+            </div>
+
+            <p class="radio-secure-notice" id="radioSecureNotice" hidden>
+              GitHub Pages abre la web con HTTPS, pero la señal proporcionada utiliza HTTP. Para escucharla dentro de esta misma página se necesita la dirección TLS/HTTPS de MyRadioStream.
+            </p>
+
+            <div class="radio-player-links">
+              <a class="radio-direct-link" id="radioDirectLink" href="http://s26.myradiostream.com:22416/" target="_blank" rel="noopener">Abrir señal directa ↗</a>
+              <span>Servidor: s26.myradiostream.com:22416</span>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -304,7 +377,8 @@
           <div class="contact-list">
             <a href="https://wa.me/51901996052" target="_blank" rel="noopener">WhatsApp: +51 901 996 052</a>
             <a href="https://www.facebook.com/nuevatvchanchamayo" target="_blank" rel="noopener">Facebook: Nueva TV Chanchamayo</a>
-            <a href="#en-vivo">Ver la señal en vivo</a>
+            <a href="#radio">Escuchar Radio La Nueva 97 FM</a>
+            <a href="#en-vivo">Ver la señal de televisión</a>
           </div>
         </div>
 
@@ -334,7 +408,8 @@
       </div>
       <div>
         <h3>Secciones</h3>
-        <a href="#en-vivo">En vivo</a>
+        <a href="#radio">Radio 97 FM</a>
+        <a href="#en-vivo">TV en vivo</a>
         <a href="#programacion">Programación</a>
         <a href="#noticias">Noticias</a>
         <a href="#publicidad">Publicidad</a>
@@ -351,12 +426,12 @@
     </div>
   </footer>
 
-  <div class="floating-player" id="floatingPlayer" aria-label="Acceso rápido a la señal">
+  <div class="floating-player" id="floatingPlayer" aria-label="Acceso rápido a Radio La Nueva 97 FM">
     <div>
-      <strong><span class="live-dot"></span> Nueva TV en vivo</strong>
-      <span>Señal oficial</span>
+      <strong><span class="live-dot"></span> Radio La Nueva 97 FM</strong>
+      <span>Señal radial en vivo</span>
     </div>
-    <a class="btn btn--small btn--primary" href="#en-vivo">Ver ahora</a>
+    <a class="btn btn--small btn--primary" href="#radio">Escuchar</a>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
@@ -366,7 +441,7 @@
     "@context": "https://schema.org",
     "@type": "BroadcastService",
     "name": "Nueva TV",
-    "description": "Señal digital en vivo de Nueva TV con programación, noticias, videos y contacto social.",
+    "description": "Radio La Nueva 97 FM y señal digital en vivo de Nueva TV con programación, noticias, música, videos y contacto social.",
     "broadcastDisplayName": "Nueva TV",
     "areaServed": "PE",
     "sameAs": [
