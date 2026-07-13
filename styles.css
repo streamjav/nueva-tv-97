@@ -1024,3 +1024,72 @@ button, input, textarea { font: inherit; }
 @media (prefers-reduced-motion: reduce) {
   .hero-logo-disc__ring { animation: none; }
 }
+
+/* =========================================================
+   Ajuste quirúrgico del encabezado - integración del fondo
+   del logotipo con toda la franja superior
+   ========================================================= */
+:root {
+  --header-logo-bg: #01071d;
+}
+
+.site-header {
+  background: var(--header-logo-bg);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-bottom: 1px solid rgba(63, 132, 225, 0.22);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.20);
+  overflow: hidden;
+}
+
+/* Halo azul muy suave para continuar la iluminación propia del logotipo. */
+.site-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 260px 135px at max(105px, calc((100vw - 1180px) / 2 + 88px)) 50%,
+    rgba(0, 28, 73, 0.34) 0%,
+    rgba(0, 16, 48, 0.18) 45%,
+    transparent 76%
+  );
+}
+
+.site-header .nav-wrap {
+  position: relative;
+  z-index: 1;
+}
+
+/* Se elimina el rectángulo visible: los bordes oscuros del archivo se
+   funden gradualmente con el mismo azul marino de toda la cabecera. */
+.brand__header-logo {
+  mix-blend-mode: normal;
+  -webkit-mask-image: radial-gradient(
+    ellipse 82% 80% at center,
+    #000 0%,
+    #000 67%,
+    rgba(0, 0, 0, 0.96) 75%,
+    rgba(0, 0, 0, 0.56) 88%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 82% 80% at center,
+    #000 0%,
+    #000 67%,
+    rgba(0, 0, 0, 0.96) 75%,
+    rgba(0, 0, 0, 0.56) 88%,
+    transparent 100%
+  );
+}
+
+@media (max-width: 760px) {
+  .site-header::before {
+    background: radial-gradient(
+      ellipse 210px 120px at 82px 50%,
+      rgba(0, 28, 73, 0.30) 0%,
+      rgba(0, 16, 48, 0.15) 48%,
+      transparent 78%
+    );
+  }
+}

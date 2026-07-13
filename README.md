@@ -30,3 +30,6 @@ Luego visita `http://localhost:8000`.
 ## GitHub Pages
 
 Sube todo el contenido de esta carpeta a la raíz del repositorio y activa GitHub Pages desde la rama principal.
+
+## Ajuste de integración del encabezado
+La franja superior utiliza ahora el mismo azul marino del fondo del logotipo (`#01071d`). Los bordes del archivo del logotipo se difuminan mediante CSS para que no se perciba su forma rectangular y parezca integrado naturalmente en toda la cabecera.
