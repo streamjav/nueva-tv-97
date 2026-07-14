@@ -42,6 +42,65 @@ const WHATSAPP_NUMBER = "51901996052";
 const $ = (selector, parent = document) => parent.querySelector(selector);
 const $$ = (selector, parent = document) => Array.from(parent.querySelectorAll(selector));
 
+// Garantiza que la radio y la televisión nunca reproduzcan sonido al mismo tiempo.
+// El último medio elegido por el usuario tiene prioridad, incluso si el otro
+// reproductor todavía estaba terminando una conexión asíncrona.
+let activeMediaIntent = null;
+
+function releaseMediaIntent(media) {
+  if (activeMediaIntent === media) activeMediaIntent = null;
+}
+
+function claimExclusivePlayback(media) {
+  activeMediaIntent = media;
+
+  const audio = $("#radioPlayer");
+  const video = $("#hlsPlayer");
+
+  if (media === "radio" && video && !video.paused) {
+    video.pause();
+  }
+
+  if (media === "tv" && audio && !audio.paused) {
+    audio.pause();
+  }
+}
+
+function setupExclusivePlaybackGuard() {
+  const audio = $("#radioPlayer");
+  const video = $("#hlsPlayer");
+  if (!audio || !video) return;
+
+  // Respaldo para los controles nativos del audio y del video.
+  audio.addEventListener("play", () => {
+    if (activeMediaIntent && activeMediaIntent !== "radio") {
+      audio.pause();
+      return;
+    }
+
+    activeMediaIntent = "radio";
+    if (!video.paused) video.pause();
+  });
+
+  video.addEventListener("play", () => {
+    if (activeMediaIntent && activeMediaIntent !== "tv") {
+      video.pause();
+      return;
+    }
+
+    activeMediaIntent = "tv";
+    if (!audio.paused) audio.pause();
+  });
+
+  audio.addEventListener("pause", () => {
+    if (activeMediaIntent === "radio") activeMediaIntent = null;
+  });
+
+  video.addEventListener("pause", () => {
+    if (activeMediaIntent === "tv") activeMediaIntent = null;
+  });
+}
+
 function setCurrentTime() {
   const el = $("#current-time");
   if (!el) return;
@@ -195,7 +254,14 @@ function setupPlayer() {
   prepareStream();
 
   function requestTvPlayback() {
-    if (!streamPrepared && !prepareStream()) return Promise.resolve(false);
+    // La televisión toma el control antes de iniciar: si la radio estaba
+    // sonando, se pausa inmediatamente y su interfaz se actualiza sola.
+    claimExclusivePlayback("tv");
+
+    if (!streamPrepared && !prepareStream()) {
+      releaseMediaIntent("tv");
+      return Promise.resolve(false);
+    }
 
     if (hls) {
       try {
@@ -212,6 +278,7 @@ function setupPlayer() {
       playAttempt = video.play();
     } catch (error) {
       console.error("Error al iniciar la señal:", error);
+      releaseMediaIntent("tv");
       showPlaybackPermissionMessage();
       return Promise.resolve(false);
     }
@@ -225,6 +292,7 @@ function setupPlayer() {
       .then(() => hideOverlay())
       .catch((error) => {
         console.error("El navegador bloqueó o interrumpió la reproducción:", error);
+        releaseMediaIntent("tv");
         showPlaybackPermissionMessage();
       });
 
@@ -307,7 +375,9 @@ function setupRadioPlayer() {
     setState("error", "Se necesita la URL HTTPS", "La señal HTTP no puede integrarse dentro de una página segura");
 
     requestRadioPlayback = () => {
+      claimExclusivePlayback("radio");
       window.open(RADIO_STREAM_URL, "_blank", "noopener");
+      releaseMediaIntent("radio");
       return Promise.resolve();
     };
 
@@ -326,6 +396,9 @@ function setupRadioPlayer() {
     requestRadioPlayback = () => {
       if (!audio.paused && !audio.ended) return Promise.resolve();
 
+      // La radio toma el control antes de iniciar: si la televisión estaba
+      // reproduciéndose, se pausa de inmediato.
+      claimExclusivePlayback("radio");
       audio.muted = false;
 
       let playAttempt;
@@ -334,6 +407,7 @@ function setupRadioPlayer() {
         playAttempt = audio.play();
       } catch (error) {
         console.error("No se pudo iniciar la radio:", error);
+        releaseMediaIntent("radio");
         setState("error", "No se pudo conectar", "Comprueba que la señal esté al aire o abre el enlace directo");
         setButtonPlaying(false);
         return Promise.resolve(false);
@@ -350,6 +424,7 @@ function setupRadioPlayer() {
       playAttempt
         .catch((error) => {
           console.error("El navegador bloqueó o interrumpió la radio:", error);
+          releaseMediaIntent("radio");
           setState("error", "No se pudo conectar", "Toca nuevamente el botón del reproductor o abre la señal directa");
           setButtonPlaying(false);
         })
@@ -387,6 +462,7 @@ function setupRadioPlayer() {
     });
 
     audio.addEventListener("error", () => {
+      releaseMediaIntent("radio");
       setState("error", "Señal no disponible", "Comprueba que la radio esté transmitiendo o abre el enlace directo");
       setButtonPlaying(false);
     });
@@ -503,6 +579,7 @@ function init() {
   $("#year").textContent = new Date().getFullYear();
   setupMenu();
   setupScheduleTabs();
+  setupExclusivePlaybackGuard();
   setupPlayer();
   setupRadioPlayer();
   setupScrollButtons();

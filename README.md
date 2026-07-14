@@ -54,3 +54,8 @@ Los botones **Escuchar radio** y **Ver televisión** de la portada inician la se
 La radio y la señal HLS se preparan al cargar la página, sin iniciar audio ni video. Al tocar **Escuchar radio** o **Ver televisión**, la llamada a `play()` ocurre directamente dentro del evento del usuario y el desplazamiento se ejecuta después. Esto mejora la compatibilidad con Chrome para Android y Safari en iPhone/iPad.
 
 Los navegadores móviles todavía pueden exigir un segundo toque si el usuario bloqueó el sonido del sitio, activó ahorro extremo de datos o el sistema interrumpe la conexión del stream. En ese caso permanecen disponibles los controles internos.
+
+
+## Reproducción exclusiva de radio y televisión
+
+Esta versión impide que ambos reproductores suenen simultáneamente. Al iniciar la radio, la televisión se pausa automáticamente. Al iniciar la televisión, la radio se pausa automáticamente. La protección también se aplica cuando el visitante utiliza los controles nativos de los reproductores.
