@@ -16,7 +16,8 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <link rel="preconnect" href="https://s26.myradiostream.com" crossorigin />
   <link rel="preconnect" href="https://183.bozztv.com" crossorigin />
-  <link rel="stylesheet" href="styles.css?v=20260713-1" />
+  <link rel="preconnect" href="https://video2.lhdserver.es" crossorigin />
+  <link rel="stylesheet" href="styles.css?v=20260717-tv2-1" />
 </head>
 <body>
   <a class="skip-link" href="#contenido">Saltar al contenido</a>
@@ -34,7 +35,8 @@
       <nav aria-label="Navegación principal">
         <ul class="site-menu" id="site-menu">
           <li><a href="#radio">Radio</a></li>
-          <li><a href="#en-vivo">TV en vivo</a></li>
+          <li><a href="#en-vivo">TV principal</a></li>
+          <li><a href="#senal-2">Señal 2</a></li>
           <li><a href="#programacion">Programación</a></li>
           <li><a href="#noticias">Noticias</a></li>
           <li><a href="#videos">Videos</a></li>
@@ -57,13 +59,14 @@
 
           <div class="hero__actions">
             <a class="btn btn--primary" href="#radio" data-play-radio aria-controls="radioPlayer">▶ Escuchar radio</a>
-            <a class="btn btn--ghost" href="#en-vivo" data-play-tv aria-controls="hlsPlayer">▣ Ver televisión</a>
+            <a class="btn btn--ghost" href="#en-vivo" data-play-tv aria-controls="hlsPlayer">▣ Ver TV principal</a>
+            <a class="btn btn--ghost" href="#senal-2" data-play-tv2 aria-controls="hlsPlayer2">▣ Ver señal 2</a>
             <a class="btn btn--ghost" href="https://wa.me/51901996052?text=Hola%20Nueva%20TV%2C%20quiero%20informaci%C3%B3n" target="_blank" rel="noopener">WhatsApp</a>
           </div>
 
           <div class="hero__stats" aria-label="Resumen del canal">
             <div><strong>24/7</strong><span>Señal digital</span></div>
-            <div><strong>HLS</strong><span>Streaming M3U8</span></div>
+            <div><strong>2 HLS</strong><span>Dos señales M3U8</span></div>
             <div><strong>Social</strong><span>Facebook activo</span></div>
           </div>
         </div>
@@ -183,8 +186,12 @@
       <div class="container">
         <div class="section-heading reveal">
           <p class="eyebrow"><span class="live-dot"></span> En vivo</p>
-          <h2>Señal principal de Nueva TV</h2>
-          <p>El reproductor ya está configurado con tu señal M3U8. Si el navegador no soporta HLS nativo, la web usa Hls.js automáticamente.</p>
+          <h2>Señales de Nueva TV en vivo</h2>
+          <p>Elige la señal principal o la segunda señal. Al iniciar una transmisión, la radio y el otro reproductor se detienen automáticamente.</p>
+          <div class="signal-quick-actions" aria-label="Selector de señales de televisión">
+            <a class="btn btn--primary btn--small" href="#en-vivo" data-play-tv aria-controls="hlsPlayer">▶ Reproducir señal principal</a>
+            <a class="btn btn--ghost btn--small" href="#senal-2" data-play-tv2 aria-controls="hlsPlayer2">▶ Reproducir señal 2</a>
+          </div>
         </div>
 
         <div class="live-layout reveal">
@@ -211,6 +218,7 @@
               <div class="link-stack">
                 <a href="https://www.facebook.com/nuevatvchanchamayo" target="_blank" rel="noopener">Facebook oficial</a>
                 <a href="https://wa.me/51901996052?text=Hola%20Nueva%20TV%2C%20quiero%20contactarme%20con%20ustedes" target="_blank" rel="noopener">WhatsApp: +51 901 996 052</a>
+                <a href="#senal-2" data-play-tv2 aria-controls="hlsPlayer2">▶ Ver segunda señal</a>
                 <a href="#publicidad">Planes de publicidad</a>
               </div>
             </div>
@@ -225,6 +233,57 @@
               </ul>
             </div>
           </aside>
+        </div>
+
+        <div class="signal-subsection" id="senal-2">
+          <div class="signal-subsection__heading reveal">
+            <div>
+              <p class="eyebrow"><span class="live-dot"></span> Segunda señal</p>
+              <h3>Nueva TV · Señal 2</h3>
+              <p>Transmisión HLS adicional integrada desde el servidor de video 2.</p>
+            </div>
+            <a class="btn btn--ghost btn--small" href="#en-vivo" data-play-tv aria-controls="hlsPlayer">Volver a señal principal</a>
+          </div>
+
+          <div class="live-layout reveal">
+            <div class="video-shell video-shell--secondary">
+              <div class="video-toolbar">
+                <span class="pill pill--live">● LIVE 2</span>
+                <span>Nueva TV · Segunda señal</span>
+              </div>
+
+              <div class="video-box">
+                <video id="hlsPlayer2" controls playsinline webkit-playsinline preload="metadata" poster="assets/og-image.jpg"></video>
+                <div class="video-overlay" id="videoOverlay2">
+                  <img src="assets/logo-nueva-tv-chanchamayo.webp" alt="Nueva TV" />
+                  <h3>Segunda señal lista</h3>
+                  <p>Presiona reproducir para ver la transmisión adicional en vivo.</p>
+                  <button class="btn btn--primary" type="button" id="startPlaybackBtn2">▶ Iniciar señal 2</button>
+                </div>
+              </div>
+            </div>
+
+            <aside class="side-panel">
+              <div class="info-card">
+                <h3>Control automático</h3>
+                <p>Cuando inicies esta señal, la radio y la señal principal se pausarán para evitar audios superpuestos.</p>
+                <div class="link-stack">
+                  <a href="#radio" data-play-radio aria-controls="radioPlayer">▶ Escuchar radio</a>
+                  <a href="#en-vivo" data-play-tv aria-controls="hlsPlayer">▶ Ver señal principal</a>
+                </div>
+              </div>
+              <div class="info-card info-card--soft">
+                <h3>Señal adicional</h3>
+                <p class="now-card__program">Nueva TV · Canal 2</p>
+                <p class="now-card__desc">Reproductor HLS compatible con computadora, Android, iPhone y tablet.</p>
+                <ul class="check-list">
+                  <li>Video H.264 mediante M3U8</li>
+                  <li>Reproducción exclusiva entre tres medios</li>
+                  <li>Inicio directo desde los botones</li>
+                </ul>
+              </div>
+            </aside>
+          </div>
         </div>
       </div>
     </section>
@@ -411,7 +470,8 @@
       <div>
         <h3>Secciones</h3>
         <a href="#radio">Radio 97 FM</a>
-        <a href="#en-vivo">TV en vivo</a>
+        <a href="#en-vivo">TV principal</a>
+        <a href="#senal-2">Señal 2</a>
         <a href="#programacion">Programación</a>
         <a href="#noticias">Noticias</a>
         <a href="#publicidad">Publicidad</a>
@@ -437,7 +497,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script src="script.js?v=20260714-exclusive-1"></script>
+  <script src="script.js?v=20260717-tv2-exclusive-1"></script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",

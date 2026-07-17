@@ -1,0 +1,17 @@
+SEGUNDA SEÑAL HLS
+
+URL integrada:
+https://video2.lhdserver.es/uranio/live.m3u8
+
+COMPORTAMIENTO:
+- Radio, TV principal y Señal 2 nunca reproducen al mismo tiempo.
+- Al iniciar uno, los otros se pausan automáticamente.
+- En Hls.js también se detiene la descarga de segmentos de la señal pausada.
+- Los botones principales intentan iniciar la reproducción con un solo toque.
+- Compatible con GitHub Pages y con radiolanueva97fm.com mediante HTTPS.
+
+ARCHIVOS PRINCIPALES:
+- index.html
+- styles.css
+- script.js
+- assets/

@@ -1,4 +1,5 @@
 const HLS_STREAM_URL = "https://183.bozztv.com/ssh101/ssh101/radiolanueva97/playlist.m3u8";
+const HLS_STREAM_URL_2 = "https://video2.lhdserver.es/uranio/live.m3u8";
 
 // Señal segura MP3 de Radio La Nueva 97 FM.
 // Funciona en GitHub Pages y en dominios publicados mediante HTTPS.
@@ -42,10 +43,21 @@ const WHATSAPP_NUMBER = "51901996052";
 const $ = (selector, parent = document) => parent.querySelector(selector);
 const $$ = (selector, parent = document) => Array.from(parent.querySelectorAll(selector));
 
-// Garantiza que la radio y la televisión nunca reproduzcan sonido al mismo tiempo.
-// El último medio elegido por el usuario tiene prioridad, incluso si el otro
-// reproductor todavía estaba terminando una conexión asíncrona.
+// Garantiza que la radio y las dos señales de televisión nunca reproduzcan
+// sonido al mismo tiempo. El último medio elegido por el usuario tiene prioridad,
+// incluso si otro reproductor estaba terminando una conexión asíncrona.
+const MEDIA_SELECTORS = {
+  radio: "#radioPlayer",
+  tv1: "#hlsPlayer",
+  tv2: "#hlsPlayer2"
+};
+
 let activeMediaIntent = null;
+
+function getMediaElement(media) {
+  const selector = MEDIA_SELECTORS[media];
+  return selector ? $(selector) : null;
+}
 
 function releaseMediaIntent(media) {
   if (activeMediaIntent === media) activeMediaIntent = null;
@@ -54,50 +66,43 @@ function releaseMediaIntent(media) {
 function claimExclusivePlayback(media) {
   activeMediaIntent = media;
 
-  const audio = $("#radioPlayer");
-  const video = $("#hlsPlayer");
-
-  if (media === "radio" && video && !video.paused) {
-    video.pause();
-  }
-
-  if (media === "tv" && audio && !audio.paused) {
-    audio.pause();
-  }
+  Object.entries(MEDIA_SELECTORS).forEach(([key, selector]) => {
+    if (key === media) return;
+    const element = $(selector);
+    if (element && !element.paused) element.pause();
+  });
 }
 
 function setupExclusivePlaybackGuard() {
-  const audio = $("#radioPlayer");
-  const video = $("#hlsPlayer");
-  if (!audio || !video) return;
+  Object.entries(MEDIA_SELECTORS).forEach(([media, selector]) => {
+    const element = $(selector);
+    if (!element) return;
 
-  // Respaldo para los controles nativos del audio y del video.
-  audio.addEventListener("play", () => {
-    if (activeMediaIntent && activeMediaIntent !== "radio") {
-      audio.pause();
-      return;
+    // Si el usuario toca los controles nativos de un video, ese toque reclama
+    // prioridad antes de que el navegador emita el evento play.
+    const claimFromNativeControl = () => {
+      if (element.paused) claimExclusivePlayback(media);
+    };
+
+    if (media !== "radio") {
+      element.addEventListener("pointerdown", claimFromNativeControl, { passive: true });
+      element.addEventListener("touchstart", claimFromNativeControl, { passive: true });
     }
 
-    activeMediaIntent = "radio";
-    if (!video.paused) video.pause();
-  });
+    element.addEventListener("play", () => {
+      // Evita que una reproducción antigua y tardía recupere el audio después
+      // de que el usuario ya eligió otro medio.
+      if (activeMediaIntent && activeMediaIntent !== media) {
+        element.pause();
+        return;
+      }
 
-  video.addEventListener("play", () => {
-    if (activeMediaIntent && activeMediaIntent !== "tv") {
-      video.pause();
-      return;
-    }
+      claimExclusivePlayback(media);
+    });
 
-    activeMediaIntent = "tv";
-    if (!audio.paused) audio.pause();
-  });
-
-  audio.addEventListener("pause", () => {
-    if (activeMediaIntent === "radio") activeMediaIntent = null;
-  });
-
-  video.addEventListener("pause", () => {
-    if (activeMediaIntent === "tv") activeMediaIntent = null;
+    element.addEventListener("pause", () => {
+      if (activeMediaIntent === media) activeMediaIntent = null;
+    });
   });
 }
 
@@ -158,54 +163,84 @@ function setupScheduleTabs() {
   renderSchedule("lunes");
 }
 
-function hideOverlay() {
-  const overlay = $("#videoOverlay");
-  overlay?.classList.add("is-hidden");
-}
-
-function setupPlayer() {
-  const video = $("#hlsPlayer");
-  const overlay = $("#videoOverlay");
-  const startBtn = $("#startPlaybackBtn");
-  const directPlayButtons = $$('[data-play-tv]');
-  const tvSection = $("#en-vivo");
+function setupHlsPlayer({
+  mediaKey,
+  streamUrl,
+  videoSelector,
+  overlaySelector,
+  startButtonSelector,
+  triggerSelector,
+  sectionSelector,
+  signalLabel
+}) {
+  const video = $(videoSelector);
+  const overlay = $(overlaySelector);
+  const startBtn = $(startButtonSelector);
+  const directPlayButtons = $$(triggerSelector);
+  const tvSection = $(sectionSelector);
   if (!video) return;
 
   let hls = null;
   let streamPrepared = false;
+  let playRequested = false;
+  let networkRetries = 0;
 
-  const showUnsupportedMessage = () => {
+  const hideOverlay = () => overlay?.classList.add("is-hidden");
+
+  const setOverlay = (title, message, buttonLabel = null, handler = null) => {
     if (!overlay) return;
     overlay.classList.remove("is-hidden");
     overlay.innerHTML = `
       <img src="assets/logo-nueva-tv-chanchamayo.webp" alt="Nueva TV" />
-      <h3>Navegador no compatible</h3>
-      <p>Prueba en un navegador moderno o abre la señal desde un dispositivo compatible con HLS.</p>
+      <h3>${title}</h3>
+      <p>${message}</p>
+      ${buttonLabel ? '<button class="btn btn--primary" type="button" data-overlay-retry>' + buttonLabel + '</button>' : ''}
     `;
+
+    if (buttonLabel && handler) {
+      $("[data-overlay-retry]", overlay)?.addEventListener("click", handler, { once: true });
+    }
+  };
+
+  const showUnsupportedMessage = () => {
+    setOverlay(
+      "Navegador no compatible",
+      "Prueba en un navegador moderno o abre la señal desde un dispositivo compatible con HLS."
+    );
   };
 
   const showPlaybackPermissionMessage = () => {
-    if (!overlay) return;
-    overlay.classList.remove("is-hidden");
-    overlay.innerHTML = `
-      <img src="assets/logo-nueva-tv-chanchamayo.webp" alt="Nueva TV" />
-      <h3>Presiona reproducir</h3>
-      <p>El navegador necesita una interacción directa para iniciar la transmisión con sonido.</p>
-      <button class="btn btn--primary" type="button" id="retryPlaybackBtn">▶ Iniciar señal</button>
-    `;
-    $("#retryPlaybackBtn")?.addEventListener("click", requestTvPlayback, { once: true });
+    setOverlay(
+      "Presiona reproducir",
+      "El navegador necesita una interacción directa para iniciar la transmisión con sonido.",
+      `▶ Iniciar ${signalLabel}`,
+      requestTvPlayback
+    );
+  };
+
+  const showStreamErrorMessage = () => {
+    setOverlay(
+      "Señal temporalmente no disponible",
+      "El servidor no respondió o la transmisión todavía no está al aire. Puedes volver a intentarlo.",
+      "↻ Reintentar señal",
+      () => {
+        networkRetries = 0;
+        if (hls) hls.startLoad(-1);
+        void requestTvPlayback();
+      }
+    );
   };
 
   const prepareStream = () => {
     if (streamPrepared) return true;
 
-    video.preload = "auto";
+    video.preload = "metadata";
     video.playsInline = true;
     video.setAttribute("playsinline", "");
     video.setAttribute("webkit-playsinline", "");
 
     if (video.canPlayType("application/vnd.apple.mpegurl")) {
-      video.src = HLS_STREAM_URL;
+      video.src = streamUrl;
       video.load();
       streamPrepared = true;
       return true;
@@ -215,21 +250,31 @@ function setupPlayer() {
       hls = new window.Hls({
         enableWorker: true,
         lowLatencyMode: true,
-        autoStartLoad: true,
+        autoStartLoad: false,
         startPosition: -1
       });
 
       hls.attachMedia(video);
       hls.on(window.Hls.Events.MEDIA_ATTACHED, () => {
-        hls.loadSource(HLS_STREAM_URL);
-        hls.startLoad(-1);
+        hls.loadSource(streamUrl);
+        if (playRequested) hls.startLoad(-1);
+      });
+
+      hls.on(window.Hls.Events.MANIFEST_PARSED, () => {
+        networkRetries = 0;
       });
 
       hls.on(window.Hls.Events.ERROR, (_event, data) => {
         if (!data?.fatal) return;
 
         if (data.type === window.Hls.ErrorTypes.NETWORK_ERROR) {
-          hls.startLoad(-1);
+          networkRetries += 1;
+          if (networkRetries <= 3) {
+            window.setTimeout(() => hls?.startLoad(-1), 1200 * networkRetries);
+          } else {
+            releaseMediaIntent(mediaKey);
+            showStreamErrorMessage();
+          }
           return;
         }
 
@@ -238,7 +283,9 @@ function setupPlayer() {
           return;
         }
 
-        console.error("Error fatal en la señal HLS:", data);
+        console.error(`Error fatal en ${signalLabel}:`, data);
+        releaseMediaIntent(mediaKey);
+        showStreamErrorMessage();
       });
 
       streamPrepared = true;
@@ -249,17 +296,17 @@ function setupPlayer() {
     return false;
   };
 
-  // La señal se conecta al cargar la página, pero no se reproduce todavía.
-  // Esto permite que el primer toque en móvil se use directamente para play().
+  // Se adjunta el reproductor al cargar la página, pero Hls.js no descarga
+  // segmentos hasta que el usuario elige esta señal. Así se conserva el toque
+  // directo en móvil sin consumir las dos transmisiones simultáneamente.
   prepareStream();
 
   function requestTvPlayback() {
-    // La televisión toma el control antes de iniciar: si la radio estaba
-    // sonando, se pausa inmediatamente y su interfaz se actualiza sola.
-    claimExclusivePlayback("tv");
+    claimExclusivePlayback(mediaKey);
+    playRequested = true;
 
     if (!streamPrepared && !prepareStream()) {
-      releaseMediaIntent("tv");
+      releaseMediaIntent(mediaKey);
       return Promise.resolve(false);
     }
 
@@ -267,18 +314,19 @@ function setupPlayer() {
       try {
         hls.startLoad(-1);
       } catch (_error) {
-        // MEDIA_ATTACHED iniciará la carga en cuanto el elemento esté listo.
+        // MEDIA_ATTACHED iniciará la carga cuando el elemento esté listo.
       }
     }
+
     video.muted = false;
 
     let playAttempt;
     try {
-      // Debe ejecutarse directamente dentro del evento click/touch.
+      // La llamada play() sucede dentro del gesto del usuario.
       playAttempt = video.play();
     } catch (error) {
-      console.error("Error al iniciar la señal:", error);
-      releaseMediaIntent("tv");
+      console.error(`Error al iniciar ${signalLabel}:`, error);
+      releaseMediaIntent(mediaKey);
       showPlaybackPermissionMessage();
       return Promise.resolve(false);
     }
@@ -289,10 +337,10 @@ function setupPlayer() {
     }
 
     playAttempt
-      .then(() => hideOverlay())
+      .then(hideOverlay)
       .catch((error) => {
-        console.error("El navegador bloqueó o interrumpió la reproducción:", error);
-        releaseMediaIntent("tv");
+        console.error(`El navegador bloqueó o interrumpió ${signalLabel}:`, error);
+        releaseMediaIntent(mediaKey);
         showPlaybackPermissionMessage();
       });
 
@@ -304,14 +352,11 @@ function setupPlayer() {
   });
 
   directPlayButtons.forEach((button) => {
-    // Un toque temprano ayuda a preparar la conexión antes del evento click.
     button.addEventListener("pointerdown", prepareStream, { passive: true });
     button.addEventListener("touchstart", prepareStream, { passive: true });
 
     button.addEventListener("click", (event) => {
       event.preventDefault();
-
-      // Primero play(); después el desplazamiento. Este orden es importante en móvil.
       void requestTvPlayback();
       window.requestAnimationFrame(() => {
         tvSection?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -319,9 +364,49 @@ function setupPlayer() {
     });
   });
 
-  video.addEventListener("play", hideOverlay);
+  video.addEventListener("play", () => {
+    try {
+      hls?.startLoad(-1);
+    } catch (_error) {
+      // La carga ya puede estar activa.
+    }
+    hideOverlay();
+  });
   video.addEventListener("playing", hideOverlay);
+  video.addEventListener("pause", () => {
+    // Al cambiar de señal, además de pausar el audio/video se detiene la
+    // descarga de segmentos HLS para no consumir dos transmisiones a la vez.
+    try {
+      hls?.stopLoad();
+    } catch (_error) {
+      // Los navegadores con HLS nativo administran la carga internamente.
+    }
+  });
   window.addEventListener("beforeunload", () => hls?.destroy(), { once: true });
+}
+
+function setupVideoPlayers() {
+  setupHlsPlayer({
+    mediaKey: "tv1",
+    streamUrl: HLS_STREAM_URL,
+    videoSelector: "#hlsPlayer",
+    overlaySelector: "#videoOverlay",
+    startButtonSelector: "#startPlaybackBtn",
+    triggerSelector: "[data-play-tv]",
+    sectionSelector: "#en-vivo",
+    signalLabel: "la señal principal"
+  });
+
+  setupHlsPlayer({
+    mediaKey: "tv2",
+    streamUrl: HLS_STREAM_URL_2,
+    videoSelector: "#hlsPlayer2",
+    overlaySelector: "#videoOverlay2",
+    startButtonSelector: "#startPlaybackBtn2",
+    triggerSelector: "[data-play-tv2]",
+    sectionSelector: "#senal-2",
+    signalLabel: "la señal 2"
+  });
 }
 
 function setupRadioPlayer() {
@@ -580,7 +665,7 @@ function init() {
   setupMenu();
   setupScheduleTabs();
   setupExclusivePlaybackGuard();
-  setupPlayer();
+  setupVideoPlayers();
   setupRadioPlayer();
   setupScrollButtons();
   setupFloatingPlayer();

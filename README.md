@@ -59,3 +59,13 @@ Los navegadores móviles todavía pueden exigir un segundo toque si el usuario b
 ## Reproducción exclusiva de radio y televisión
 
 Esta versión impide que ambos reproductores suenen simultáneamente. Al iniciar la radio, la televisión se pausa automáticamente. Al iniciar la televisión, la radio se pausa automáticamente. La protección también se aplica cuando el visitante utiliza los controles nativos de los reproductores.
+
+
+## Segunda señal de televisión
+
+La página incluye ahora dos reproductores HLS:
+
+- Señal principal: `https://183.bozztv.com/ssh101/ssh101/radiolanueva97/playlist.m3u8`
+- Señal 2: `https://video2.lhdserver.es/uranio/live.m3u8`
+
+Radio, TV principal y TV 2 son mutuamente excluyentes: al iniciar uno, los otros se pausan automáticamente.
