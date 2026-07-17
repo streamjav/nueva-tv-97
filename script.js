@@ -1,5 +1,5 @@
-const HLS_STREAM_URL = "https://183.bozztv.com/ssh101/ssh101/radiolanueva97/playlist.m3u8";
-const HLS_STREAM_URL_2 = "https://video2.lhdserver.es/uranio/live.m3u8";
+const HLS_STREAM_URL = "https://video2.lhdserver.es/uranio/live.m3u8";
+const HLS_STREAM_URL_2 = "https://lbgo.bozztv.com/ssh101/ssh101/radiolanueva97/playlist.m3u8";
 
 // Señal segura MP3 de Radio La Nueva 97 FM.
 // Funciona en GitHub Pages y en dominios publicados mediante HTTPS.
@@ -488,7 +488,7 @@ function setupVideoPlayers() {
     startButtonSelector: "#startPlaybackBtn",
     triggerSelector: "[data-play-tv]",
     sectionSelector: "#en-vivo",
-    signalLabel: "la señal principal"
+    signalLabel: "Nueva TV Chanchamayo"
   });
 
   setupHlsPlayer({
@@ -499,7 +499,7 @@ function setupVideoPlayers() {
     startButtonSelector: "#startPlaybackBtn2",
     triggerSelector: "[data-play-tv2]",
     sectionSelector: "#senal-2",
-    signalLabel: "la señal 2"
+    signalLabel: "Nueva 97 TV"
   });
 }
 

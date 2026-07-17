@@ -61,11 +61,15 @@ Los navegadores móviles todavía pueden exigir un segundo toque si el usuario b
 Esta versión impide que ambos reproductores suenen simultáneamente. Al iniciar la radio, la televisión se pausa automáticamente. Al iniciar la televisión, la radio se pausa automáticamente. La protección también se aplica cuando el visitante utiliza los controles nativos de los reproductores.
 
 
-## Segunda señal de televisión
+## Orden actual de medios
 
-La página incluye ahora dos reproductores HLS:
+La página presenta los reproductores en este orden:
 
-- Señal principal: `https://183.bozztv.com/ssh101/ssh101/radiolanueva97/playlist.m3u8`
-- Señal 2: `https://video2.lhdserver.es/uranio/live.m3u8`
+1. **Radio La Nueva 97 FM**
+   - `https://s26.myradiostream.com/22416/listen.mp3`
+2. **NUEVA TV CHANCHAMAYO**
+   - `https://video2.lhdserver.es/uranio/live.m3u8`
+3. **Nueva 97 TV**
+   - `https://lbgo.bozztv.com/ssh101/ssh101/radiolanueva97/playlist.m3u8`
 
-Radio, TV principal y TV 2 son mutuamente excluyentes: al iniciar uno, los otros se pausan automáticamente.
+Los tres medios son mutuamente excluyentes: al iniciar uno, los otros se pausan automáticamente. En los reproductores HLS también se detiene la descarga de segmentos de la señal pausada.

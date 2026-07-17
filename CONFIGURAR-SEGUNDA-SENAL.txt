@@ -1,17 +1,18 @@
-SEGUNDA SEÑAL HLS
+ORDEN Y CONFIGURACIÓN DE MEDIOS
 
-URL integrada:
+1. RADIO LA NUEVA 97 FM
+https://s26.myradiostream.com/22416/listen.mp3
+
+2. NUEVA TV CHANCHAMAYO
 https://video2.lhdserver.es/uranio/live.m3u8
 
-COMPORTAMIENTO:
-- Radio, TV principal y Señal 2 nunca reproducen al mismo tiempo.
-- Al iniciar uno, los otros se pausan automáticamente.
-- En Hls.js también se detiene la descarga de segmentos de la señal pausada.
-- Los botones principales intentan iniciar la reproducción con un solo toque.
-- Compatible con GitHub Pages y con radiolanueva97fm.com mediante HTTPS.
+3. NUEVA 97 TV
+https://lbgo.bozztv.com/ssh101/ssh101/radiolanueva97/playlist.m3u8
 
-ARCHIVOS PRINCIPALES:
-- index.html
-- styles.css
-- script.js
-- assets/
+COMPORTAMIENTO:
+- Solo un medio puede reproducirse a la vez.
+- Al iniciar la radio, se pausan ambos canales de televisión.
+- Al iniciar Nueva TV Chanchamayo, se pausan la radio y Nueva 97 TV.
+- Al iniciar Nueva 97 TV, se pausan la radio y Nueva TV Chanchamayo.
+- Los botones principales intentan iniciar la reproducción con un solo toque.
+- Compatible con GitHub Pages y radiolanueva97fm.com mediante HTTPS.

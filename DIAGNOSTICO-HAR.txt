@@ -16,4 +16,4 @@ Corrección aplicada:
 - NotSupportedError/AbortError durante la carga inicial ya no se tratan como fallo definitivo.
 - Recuperación diferenciada para errores de red y de medios.
 - Mensajes técnicos visibles en la consola para detectar CORS, 403, 404 o códec.
-- Exclusión automática entre radio, TV principal y señal 2.
+- Exclusión automática entre Radio La Nueva 97 FM, Nueva TV Chanchamayo y Nueva 97 TV.

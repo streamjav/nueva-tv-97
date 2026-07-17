@@ -3,21 +3,21 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Radio La Nueva 97 FM y Nueva TV | Señales en Vivo</title>
-  <meta name="description" content="Escucha Radio La Nueva 97 FM y mira la señal digital de Nueva TV Chanchamayo en vivo, con noticias, música, programación y contacto directo." />
+  <title>Radio La Nueva 97 FM | Nueva TV Chanchamayo y Nueva 97 TV</title>
+  <meta name="description" content="Escucha Radio La Nueva 97 FM y mira Nueva TV Chanchamayo y Nueva 97 TV en vivo, con noticias, música, programación y contacto directo." />
   <meta name="theme-color" content="#01071d" />
 
-  <meta property="og:title" content="Radio La Nueva 97 FM y Nueva TV | En Vivo" />
-  <meta property="og:description" content="Escucha Radio La Nueva 97 FM y mira Nueva TV Chanchamayo en vivo desde cualquier dispositivo." />
+  <meta property="og:title" content="Radio La Nueva 97 FM, Nueva TV Chanchamayo y Nueva 97 TV | En Vivo" />
+  <meta property="og:description" content="Escucha Radio La Nueva 97 FM y mira Nueva TV Chanchamayo y Nueva 97 TV en vivo desde cualquier dispositivo." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="assets/og-image.jpg" />
 
   <link rel="icon" type="image/svg+xml" href="assets/favicon.png" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <link rel="preconnect" href="https://s26.myradiostream.com" crossorigin />
-  <link rel="preconnect" href="https://183.bozztv.com" crossorigin />
+  <link rel="preconnect" href="https://lbgo.bozztv.com" crossorigin />
   <link rel="preconnect" href="https://video2.lhdserver.es" crossorigin />
-  <link rel="stylesheet" href="styles.css?v=20260717-tv2-1" />
+  <link rel="stylesheet" href="styles.css?v=20260717-canales-orden-1" />
 </head>
 <body>
   <a class="skip-link" href="#contenido">Saltar al contenido</a>
@@ -35,8 +35,8 @@
       <nav aria-label="Navegación principal">
         <ul class="site-menu" id="site-menu">
           <li><a href="#radio">Radio</a></li>
-          <li><a href="#en-vivo">TV principal</a></li>
-          <li><a href="#senal-2">Señal 2</a></li>
+          <li><a href="#en-vivo">Nueva TV Chanchamayo</a></li>
+          <li><a href="#senal-2">Nueva 97 TV</a></li>
           <li><a href="#programacion">Programación</a></li>
           <li><a href="#noticias">Noticias</a></li>
           <li><a href="#videos">Videos</a></li>
@@ -59,8 +59,8 @@
 
           <div class="hero__actions">
             <a class="btn btn--primary" href="#radio" data-play-radio aria-controls="radioPlayer">▶ Escuchar radio</a>
-            <a class="btn btn--ghost" href="#en-vivo" data-play-tv aria-controls="hlsPlayer">▣ Ver TV principal</a>
-            <a class="btn btn--ghost" href="#senal-2" data-play-tv2 aria-controls="hlsPlayer2">▣ Ver señal 2</a>
+            <a class="btn btn--ghost" href="#en-vivo" data-play-tv aria-controls="hlsPlayer">▣ NUEVA TV CHANCHAMAYO</a>
+            <a class="btn btn--ghost" href="#senal-2" data-play-tv2 aria-controls="hlsPlayer2">▣ Nueva 97 TV</a>
             <a class="btn btn--ghost" href="https://wa.me/51901996052?text=Hola%20Nueva%20TV%2C%20quiero%20informaci%C3%B3n" target="_blank" rel="noopener">WhatsApp</a>
           </div>
 
@@ -88,7 +88,7 @@
                 <div class="hero-logo-disc">
                   <div class="hero-logo-disc__ring"></div>
                   <img src="assets/logo-nueva-tv-chanchamayo-circle.webp" alt="Logotipo de Nueva TV Chanchamayo dentro de un círculo" class="hero-card__logo-icon hero-card__logo-full" />
-                  <button class="play-button" type="button" data-play-tv aria-controls="hlsPlayer" aria-label="Reproducir la transmisión de Nueva TV">▶</button>
+                  <button class="play-button" type="button" data-play-tv aria-controls="hlsPlayer" aria-label="Reproducir Nueva TV Chanchamayo">▶</button>
                 </div>
               </div>
             </div>
@@ -186,11 +186,11 @@
       <div class="container">
         <div class="section-heading reveal">
           <p class="eyebrow"><span class="live-dot"></span> En vivo</p>
-          <h2>Señales de Nueva TV en vivo</h2>
-          <p>Elige la señal principal o la segunda señal. Al iniciar una transmisión, la radio y el otro reproductor se detienen automáticamente.</p>
+          <h2>Televisión en vivo</h2>
+          <p>Elige Nueva TV Chanchamayo o Nueva 97 TV. Al iniciar una transmisión, la radio y el otro canal se detienen automáticamente.</p>
           <div class="signal-quick-actions" aria-label="Selector de señales de televisión">
-            <a class="btn btn--primary btn--small" href="#en-vivo" data-play-tv aria-controls="hlsPlayer">▶ Reproducir señal principal</a>
-            <a class="btn btn--ghost btn--small" href="#senal-2" data-play-tv2 aria-controls="hlsPlayer2">▶ Reproducir señal 2</a>
+            <a class="btn btn--primary btn--small" href="#en-vivo" data-play-tv aria-controls="hlsPlayer">▶ NUEVA TV CHANCHAMAYO</a>
+            <a class="btn btn--ghost btn--small" href="#senal-2" data-play-tv2 aria-controls="hlsPlayer2">▶ Nueva 97 TV</a>
           </div>
         </div>
 
@@ -198,16 +198,16 @@
           <div class="video-shell">
             <div class="video-toolbar">
               <span class="pill pill--live">● LIVE</span>
-              <span id="live-title">Nueva TV · Señal oficial</span>
+              <span id="live-title">NUEVA TV CHANCHAMAYO</span>
             </div>
 
             <div class="video-box">
               <video id="hlsPlayer" controls playsinline webkit-playsinline preload="auto" poster="assets/og-image.jpg"></video>
               <div class="video-overlay" id="videoOverlay">
                 <img src="assets/logo-nueva-tv-chanchamayo.webp" alt="Nueva TV" />
-                <h3>Tu señal está lista</h3>
+                <h3>Nueva TV Chanchamayo está lista</h3>
                 <p>Presiona reproducir para ver la transmisión en vivo.</p>
-                <button class="btn btn--primary" type="button" id="startPlaybackBtn">▶ Iniciar señal</button>
+                <button class="btn btn--primary" type="button" id="startPlaybackBtn">▶ Iniciar Nueva TV Chanchamayo</button>
               </div>
             </div>
           </div>
@@ -218,13 +218,13 @@
               <div class="link-stack">
                 <a href="https://www.facebook.com/nuevatvchanchamayo" target="_blank" rel="noopener">Facebook oficial</a>
                 <a href="https://wa.me/51901996052?text=Hola%20Nueva%20TV%2C%20quiero%20contactarme%20con%20ustedes" target="_blank" rel="noopener">WhatsApp: +51 901 996 052</a>
-                <a href="#senal-2" data-play-tv2 aria-controls="hlsPlayer2">▶ Ver segunda señal</a>
+                <a href="#senal-2" data-play-tv2 aria-controls="hlsPlayer2">▶ Ver Nueva 97 TV</a>
                 <a href="#publicidad">Planes de publicidad</a>
               </div>
             </div>
             <div class="info-card info-card--soft">
               <h3>Ahora</h3>
-              <p class="now-card__program">Nueva TV en vivo</p>
+              <p class="now-card__program">Nueva TV Chanchamayo en vivo</p>
               <p class="now-card__desc">Transmisión abierta para noticias locales, entrevistas, videos, cultura y entretenimiento.</p>
               <ul class="check-list">
                 <li>Diseño alineado al logotipo</li>
@@ -238,27 +238,27 @@
         <div class="signal-subsection" id="senal-2">
           <div class="signal-subsection__heading reveal">
             <div>
-              <p class="eyebrow"><span class="live-dot"></span> Segunda señal</p>
-              <h3>Nueva TV · Señal 2</h3>
-              <p>Transmisión HLS adicional integrada desde el servidor de video 2.</p>
+              <p class="eyebrow"><span class="live-dot"></span> Nueva 97 TV</p>
+              <h3>Nueva 97 TV</h3>
+              <p>Señal en vivo de Nueva 97 TV mediante transmisión HLS.</p>
             </div>
-            <a class="btn btn--ghost btn--small" href="#en-vivo" data-play-tv aria-controls="hlsPlayer">Volver a señal principal</a>
+            <a class="btn btn--ghost btn--small" href="#en-vivo" data-play-tv aria-controls="hlsPlayer">Volver a Nueva TV Chanchamayo</a>
           </div>
 
           <div class="live-layout reveal">
             <div class="video-shell video-shell--secondary">
               <div class="video-toolbar">
                 <span class="pill pill--live">● LIVE 2</span>
-                <span>Nueva TV · Segunda señal</span>
+                <span>Nueva 97 TV</span>
               </div>
 
               <div class="video-box">
                 <video id="hlsPlayer2" controls playsinline webkit-playsinline preload="metadata" poster="assets/og-image.jpg"></video>
                 <div class="video-overlay" id="videoOverlay2">
-                  <img src="assets/logo-nueva-tv-chanchamayo.webp" alt="Nueva TV" />
-                  <h3>Segunda señal lista</h3>
-                  <p>Presiona reproducir para ver la transmisión adicional en vivo.</p>
-                  <button class="btn btn--primary" type="button" id="startPlaybackBtn2">▶ Iniciar señal 2</button>
+                  <img src="assets/logo-nueva-tv-chanchamayo.webp" alt="Identidad visual de Nueva 97 TV" />
+                  <h3>Nueva 97 TV está lista</h3>
+                  <p>Presiona reproducir para ver Nueva 97 TV en vivo.</p>
+                  <button class="btn btn--primary" type="button" id="startPlaybackBtn2">▶ Iniciar Nueva 97 TV</button>
                 </div>
               </div>
             </div>
@@ -266,15 +266,15 @@
             <aside class="side-panel">
               <div class="info-card">
                 <h3>Control automático</h3>
-                <p>Cuando inicies esta señal, la radio y la señal principal se pausarán para evitar audios superpuestos.</p>
+                <p>Cuando inicies Nueva 97 TV, la radio y Nueva TV Chanchamayo se pausarán para evitar audios superpuestos.</p>
                 <div class="link-stack">
                   <a href="#radio" data-play-radio aria-controls="radioPlayer">▶ Escuchar radio</a>
-                  <a href="#en-vivo" data-play-tv aria-controls="hlsPlayer">▶ Ver señal principal</a>
+                  <a href="#en-vivo" data-play-tv aria-controls="hlsPlayer">▶ Ver Nueva TV Chanchamayo</a>
                 </div>
               </div>
               <div class="info-card info-card--soft">
-                <h3>Señal adicional</h3>
-                <p class="now-card__program">Nueva TV · Canal 2</p>
+                <h3>Nueva 97 TV</h3>
+                <p class="now-card__program">Nueva 97 TV en vivo</p>
                 <p class="now-card__desc">Reproductor HLS compatible con computadora, Android, iPhone y tablet.</p>
                 <ul class="check-list">
                   <li>Video H.264 mediante M3U8</li>
@@ -439,7 +439,7 @@
             <a href="https://wa.me/51901996052" target="_blank" rel="noopener">WhatsApp: +51 901 996 052</a>
             <a href="https://www.facebook.com/nuevatvchanchamayo" target="_blank" rel="noopener">Facebook: Nueva TV Chanchamayo</a>
             <a href="#radio">Escuchar Radio La Nueva 97 FM</a>
-            <a href="#en-vivo">Ver la señal de televisión</a>
+            <a href="#en-vivo">Ver Nueva TV Chanchamayo</a>
           </div>
         </div>
 
@@ -470,8 +470,8 @@
       <div>
         <h3>Secciones</h3>
         <a href="#radio">Radio 97 FM</a>
-        <a href="#en-vivo">TV principal</a>
-        <a href="#senal-2">Señal 2</a>
+        <a href="#en-vivo">Nueva TV Chanchamayo</a>
+        <a href="#senal-2">Nueva 97 TV</a>
         <a href="#programacion">Programación</a>
         <a href="#noticias">Noticias</a>
         <a href="#publicidad">Publicidad</a>
@@ -496,8 +496,8 @@
     <a class="btn btn--small btn--primary" href="#radio" data-play-radio aria-controls="radioPlayer">Escuchar</a>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
-  <script src="script.js?v=20260717-tv2-har-fix-3"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script src="script.js?v=20260717-canales-orden-1"></script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",

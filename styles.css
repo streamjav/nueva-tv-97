@@ -1506,3 +1506,26 @@ button, input, textarea { font: inherit; }
   }
   .signal-subsection { margin-top: 58px; }
 }
+
+/* Ajuste quirúrgico para los nombres completos de los dos canales. */
+@media (min-width: 821px) {
+  .site-menu {
+    gap: clamp(10px, 1.15vw, 18px);
+  }
+
+  .site-menu a {
+    white-space: nowrap;
+    font-size: clamp(0.78rem, 0.82vw, 0.92rem);
+  }
+}
+
+@media (min-width: 821px) and (max-width: 1180px) {
+  .brand__header-logo {
+    width: 150px;
+  }
+
+  .nav-cta {
+    padding-inline: 15px;
+    font-size: 0.88rem;
+  }
+}
