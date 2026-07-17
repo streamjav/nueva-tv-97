@@ -1,0 +1,19 @@
+DIAGNÓSTICO DEL HAR DE ELITE DIGITAL
+
+Hallazgos:
+- El reproductor funcional utiliza hls.js@latest.
+- El manifiesto se solicita mediante XMLHttpRequest desde el navegador.
+- El servidor video2.lhdserver.es devuelve Access-Control-Allow-Origin: *.
+- Los segmentos .ts también se entregan con CORS habilitado.
+- El stream analizado usa H.264 Constrained Baseline, 1280x720, yuv420p, 29.97 fps.
+- El audio usa AAC-LC estéreo a 48 kHz.
+- No se observaron tokens, cookies, claves privadas ni un reproductor propietario.
+
+Corrección aplicada:
+- Inicialización Hls.js bajo demanda.
+- HLS tradicional, sin lowLatencyMode.
+- Reproducción reintentada al recibir MANIFEST_PARSED y FRAG_BUFFERED.
+- NotSupportedError/AbortError durante la carga inicial ya no se tratan como fallo definitivo.
+- Recuperación diferenciada para errores de red y de medios.
+- Mensajes técnicos visibles en la consola para detectar CORS, 403, 404 o códec.
+- Exclusión automática entre radio, TV principal y señal 2.

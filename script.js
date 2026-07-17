@@ -182,9 +182,12 @@ function setupHlsPlayer({
 
   let hls = null;
   let streamPrepared = false;
+  let manifestReady = false;
   let playRequested = false;
   let networkRetries = 0;
+  let mediaRetries = 0;
 
+  const isSelectedSignal = () => activeMediaIntent === mediaKey;
   const hideOverlay = () => overlay?.classList.add("is-hidden");
 
   const setOverlay = (title, message, buttonLabel = null, handler = null) => {
@@ -202,10 +205,17 @@ function setupHlsPlayer({
     }
   };
 
+  const showConnectingMessage = () => {
+    setOverlay(
+      `Conectando ${signalLabel}…`,
+      "Cargando la transmisión HLS. La imagen puede tardar algunos segundos en aparecer."
+    );
+  };
+
   const showUnsupportedMessage = () => {
     setOverlay(
       "Navegador no compatible",
-      "Prueba en un navegador moderno o abre la señal desde un dispositivo compatible con HLS."
+      "Prueba en Chrome, Edge, Firefox o Safari actualizado."
     );
   };
 
@@ -218,76 +228,167 @@ function setupHlsPlayer({
     );
   };
 
-  const showStreamErrorMessage = () => {
+  const showStreamErrorMessage = (detail = "") => {
+    const extra = detail ? ` Detalle técnico: ${detail}.` : "";
     setOverlay(
       "Señal temporalmente no disponible",
-      "El servidor no respondió o la transmisión todavía no está al aire. Puedes volver a intentarlo.",
+      `El servidor no respondió o la transmisión todavía no está al aire.${extra}`,
       "↻ Reintentar señal",
       () => {
         networkRetries = 0;
-        if (hls) hls.startLoad(-1);
-        void requestTvPlayback();
+        mediaRetries = 0;
+        manifestReady = false;
+        void requestTvPlayback({ restart: true });
       }
     );
   };
 
-  const prepareStream = () => {
-    if (streamPrepared) return true;
+  const attemptPlayback = async ({ fromUserGesture = false } = {}) => {
+    if (!playRequested || !isSelectedSignal()) return false;
 
+    video.muted = false;
+
+    try {
+      await video.play();
+      hideOverlay();
+      return true;
+    } catch (error) {
+      const errorName = error?.name || "PlaybackError";
+
+      // Antes de que Hls.js termine de adjuntar MediaSource o analizar el
+      // manifiesto, Chrome puede devolver NotSupportedError o AbortError.
+      // No se considera un fallo definitivo: MANIFEST_PARSED y FRAG_BUFFERED
+      // volverán a intentar play() cuando el video ya tenga datos.
+      if (!manifestReady && (errorName === "NotSupportedError" || errorName === "AbortError")) {
+        console.debug(`${signalLabel}: esperando manifiesto HLS antes de reproducir.`, error);
+        return false;
+      }
+
+      if (errorName === "NotAllowedError") {
+        console.warn(`${signalLabel}: el navegador pidió una interacción adicional.`, error);
+        showPlaybackPermissionMessage();
+        return false;
+      }
+
+      console.error(`No se pudo reproducir ${signalLabel}:`, error);
+      if (fromUserGesture || manifestReady) {
+        showStreamErrorMessage(errorName);
+      }
+      return false;
+    }
+  };
+
+  const createHlsInstance = () => {
+    if (hls) return hls;
+    if (!window.Hls || !window.Hls.isSupported()) return null;
+
+    hls = new window.Hls({
+      enableWorker: true,
+      // El HAR de la señal funcional muestra HLS tradicional con segmentos
+      // MPEG-TS de ~4 segundos, no Low-Latency HLS.
+      lowLatencyMode: false,
+      backBufferLength: 30,
+      maxBufferLength: 30,
+      liveSyncDurationCount: 3,
+      liveMaxLatencyDurationCount: 8
+    });
+
+    hls.on(window.Hls.Events.MANIFEST_LOADING, () => {
+      manifestReady = false;
+      if (playRequested && isSelectedSignal()) showConnectingMessage();
+    });
+
+    hls.on(window.Hls.Events.MANIFEST_PARSED, (_event, data) => {
+      manifestReady = true;
+      networkRetries = 0;
+      mediaRetries = 0;
+      console.info(`${signalLabel}: manifiesto HLS cargado.`, {
+        levels: data?.levels?.length ?? 0,
+        url: streamUrl
+      });
+      if (playRequested && isSelectedSignal()) void attemptPlayback();
+    });
+
+    // Algunos streams entregan un manifiesto válido pero el elemento video no
+    // puede iniciar hasta que el primer fragmento ya fue anexado al buffer.
+    hls.on(window.Hls.Events.FRAG_BUFFERED, () => {
+      if (playRequested && isSelectedSignal() && video.paused) {
+        void attemptPlayback();
+      }
+    });
+
+    hls.on(window.Hls.Events.ERROR, (_event, data) => {
+      const technicalDetail = `${data?.type || "error"}/${data?.details || "sin-detalle"}`;
+      console.error(`${signalLabel}: error HLS ${technicalDetail}`, data);
+
+      if (!data?.fatal) return;
+
+      if (data.type === window.Hls.ErrorTypes.NETWORK_ERROR) {
+        networkRetries += 1;
+
+        if (networkRetries <= 3 && playRequested && isSelectedSignal()) {
+          window.setTimeout(() => {
+            if (!hls || !playRequested || !isSelectedSignal()) return;
+
+            // Si falló el manifiesto se vuelve a solicitar la fuente completa;
+            // si falló un fragmento, startLoad() continúa desde el vivo.
+            if (String(data.details || "").toLowerCase().includes("manifest")) {
+              hls.loadSource(streamUrl);
+            }
+            hls.startLoad(-1);
+          }, 1200 * networkRetries);
+        } else {
+          releaseMediaIntent(mediaKey);
+          showStreamErrorMessage(technicalDetail);
+        }
+        return;
+      }
+
+      if (data.type === window.Hls.ErrorTypes.MEDIA_ERROR) {
+        mediaRetries += 1;
+        if (mediaRetries <= 2) {
+          hls.recoverMediaError();
+        } else {
+          releaseMediaIntent(mediaKey);
+          showStreamErrorMessage(technicalDetail);
+        }
+        return;
+      }
+
+      releaseMediaIntent(mediaKey);
+      showStreamErrorMessage(technicalDetail);
+    });
+
+    // El reproductor funcional del HAR usa Hls.js en Chrome. Se carga la
+    // fuente y luego se adjunta MediaSource al elemento video.
+    hls.loadSource(streamUrl);
+    hls.attachMedia(video);
+    return hls;
+  };
+
+  const prepareStream = () => {
     video.preload = "metadata";
     video.playsInline = true;
+    video.crossOrigin = "anonymous";
     video.setAttribute("playsinline", "");
     video.setAttribute("webkit-playsinline", "");
+    video.setAttribute("crossorigin", "anonymous");
 
-    if (video.canPlayType("application/vnd.apple.mpegurl")) {
-      video.src = streamUrl;
-      video.load();
-      streamPrepared = true;
-      return true;
+    // En Chrome se prioriza Hls.js. Versiones recientes pueden responder
+    // "maybe" a canPlayType(HLS) aunque ciertos streams no funcionen de forma
+    // nativa. El HAR de Elite Digital confirma que su página usa Hls.js.
+    if (window.Hls && window.Hls.isSupported()) {
+      createHlsInstance();
+      streamPrepared = Boolean(hls);
+      return streamPrepared;
     }
 
-    if (window.Hls && window.Hls.isSupported()) {
-      hls = new window.Hls({
-        enableWorker: true,
-        lowLatencyMode: true,
-        autoStartLoad: false,
-        startPosition: -1
-      });
-
-      hls.attachMedia(video);
-      hls.on(window.Hls.Events.MEDIA_ATTACHED, () => {
-        hls.loadSource(streamUrl);
-        if (playRequested) hls.startLoad(-1);
-      });
-
-      hls.on(window.Hls.Events.MANIFEST_PARSED, () => {
-        networkRetries = 0;
-      });
-
-      hls.on(window.Hls.Events.ERROR, (_event, data) => {
-        if (!data?.fatal) return;
-
-        if (data.type === window.Hls.ErrorTypes.NETWORK_ERROR) {
-          networkRetries += 1;
-          if (networkRetries <= 3) {
-            window.setTimeout(() => hls?.startLoad(-1), 1200 * networkRetries);
-          } else {
-            releaseMediaIntent(mediaKey);
-            showStreamErrorMessage();
-          }
-          return;
-        }
-
-        if (data.type === window.Hls.ErrorTypes.MEDIA_ERROR) {
-          hls.recoverMediaError();
-          return;
-        }
-
-        console.error(`Error fatal en ${signalLabel}:`, data);
-        releaseMediaIntent(mediaKey);
-        showStreamErrorMessage();
-      });
-
+    // Safari y plataformas con HLS nativo real usan directamente el .m3u8.
+    if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      if (video.src !== streamUrl) {
+        video.src = streamUrl;
+        video.load();
+      }
       streamPrepared = true;
       return true;
     }
@@ -296,55 +397,34 @@ function setupHlsPlayer({
     return false;
   };
 
-  // Se adjunta el reproductor al cargar la página, pero Hls.js no descarga
-  // segmentos hasta que el usuario elige esta señal. Así se conserva el toque
-  // directo en móvil sin consumir las dos transmisiones simultáneamente.
-  prepareStream();
-
-  function requestTvPlayback() {
+  async function requestTvPlayback({ restart = false } = {}) {
     claimExclusivePlayback(mediaKey);
     playRequested = true;
+    showConnectingMessage();
+
+    if (restart && hls) {
+      hls.destroy();
+      hls = null;
+      streamPrepared = false;
+      manifestReady = false;
+    }
 
     if (!streamPrepared && !prepareStream()) {
       releaseMediaIntent(mediaKey);
-      return Promise.resolve(false);
+      return false;
     }
 
     if (hls) {
       try {
         hls.startLoad(-1);
       } catch (_error) {
-        // MEDIA_ATTACHED iniciará la carga cuando el elemento esté listo.
+        // MEDIA_ATTACHED y MANIFEST_PARSED continuarán el arranque.
       }
     }
 
-    video.muted = false;
-
-    let playAttempt;
-    try {
-      // La llamada play() sucede dentro del gesto del usuario.
-      playAttempt = video.play();
-    } catch (error) {
-      console.error(`Error al iniciar ${signalLabel}:`, error);
-      releaseMediaIntent(mediaKey);
-      showPlaybackPermissionMessage();
-      return Promise.resolve(false);
-    }
-
-    if (!playAttempt || typeof playAttempt.then !== "function") {
-      hideOverlay();
-      return Promise.resolve();
-    }
-
-    playAttempt
-      .then(hideOverlay)
-      .catch((error) => {
-        console.error(`El navegador bloqueó o interrumpió ${signalLabel}:`, error);
-        releaseMediaIntent(mediaKey);
-        showPlaybackPermissionMessage();
-      });
-
-    return playAttempt;
+    // Se intenta dentro del clic para conservar el permiso de reproducción en
+    // móviles. Si MediaSource aún no está listo, los eventos HLS reintentan.
+    return attemptPlayback({ fromUserGesture: true });
   }
 
   startBtn?.addEventListener("click", () => {
@@ -352,6 +432,8 @@ function setupHlsPlayer({
   });
 
   directPlayButtons.forEach((button) => {
+    // pointerdown sucede antes de click y da tiempo para que Hls.js adjunte
+    // MediaSource sin perder el gesto directo del usuario.
     button.addEventListener("pointerdown", prepareStream, { passive: true });
     button.addEventListener("touchstart", prepareStream, { passive: true });
 
@@ -364,7 +446,11 @@ function setupHlsPlayer({
     });
   });
 
+  video.addEventListener("pointerdown", prepareStream, { passive: true });
+  video.addEventListener("touchstart", prepareStream, { passive: true });
+
   video.addEventListener("play", () => {
+    playRequested = true;
     try {
       hls?.startLoad(-1);
     } catch (_error) {
@@ -372,16 +458,24 @@ function setupHlsPlayer({
     }
     hideOverlay();
   });
+
   video.addEventListener("playing", hideOverlay);
+
   video.addEventListener("pause", () => {
-    // Al cambiar de señal, además de pausar el audio/video se detiene la
-    // descarga de segmentos HLS para no consumir dos transmisiones a la vez.
+    playRequested = false;
     try {
       hls?.stopLoad();
     } catch (_error) {
-      // Los navegadores con HLS nativo administran la carga internamente.
+      // Safari administra HLS nativamente.
     }
   });
+
+  video.addEventListener("error", () => {
+    const mediaError = video.error;
+    if (!mediaError || !playRequested) return;
+    console.error(`${signalLabel}: error del elemento video.`, mediaError);
+  });
+
   window.addEventListener("beforeunload", () => hls?.destroy(), { once: true });
 }
 
