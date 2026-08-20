@@ -645,6 +645,33 @@ function setupRadioPlayer() {
       setState("error", "Señal no disponible", "Comprueba que la radio esté transmitiendo o abre el enlace directo");
       setButtonPlaying(false);
     });
+
+    // Intenta iniciar la radio automáticamente al abrir la página.
+    // Si el navegador bloquea el autoplay con sonido, no altera el diseño ni
+    // muestra un falso error: los controles manuales continúan funcionando igual.
+    const tryInitialRadioAutoplay = () => {
+      if (!audio.paused || audio.ended) return;
+
+      claimExclusivePlayback("radio");
+      audio.muted = false;
+
+      try {
+        const autoplayAttempt = audio.play();
+        if (autoplayAttempt && typeof autoplayAttempt.catch === "function") {
+          autoplayAttempt.catch((error) => {
+            releaseMediaIntent("radio");
+            if (error?.name !== "NotAllowedError") {
+              console.debug("Inicio automático de la radio no disponible:", error);
+            }
+          });
+        }
+      } catch (error) {
+        releaseMediaIntent("radio");
+        console.debug("El navegador no permitió iniciar automáticamente la radio:", error);
+      }
+    };
+
+    window.requestAnimationFrame(tryInitialRadioAutoplay);
   }
 
   const radioSection = $("#radio");
