@@ -3,7 +3,7 @@ const HLS_STREAM_URL_2 = "https://lbgo.bozztv.com/ssh101/ssh101/radiolanueva97/p
 
 // Señal segura MP3 de Radio La Nueva 97 FM.
 // Funciona en GitHub Pages y en dominios publicados mediante HTTPS.
-const RADIO_STREAM_URL = "https://s26.myradiostream.com/22416/listen.mp3";
+const RADIO_STREAM_URL = "https://usa3.lhdserver.es:8253/stream";
 const RADIO_STREAM_TLS_URL = RADIO_STREAM_URL;
 
 const scheduleData = {
