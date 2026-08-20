@@ -672,6 +672,29 @@ function setupRadioPlayer() {
     };
 
     window.requestAnimationFrame(tryInitialRadioAutoplay);
+
+    // Fallback quirúrgico para navegadores que bloquean el autoplay con sonido:
+    // la primera interacción real del visitante intenta iniciar la radio.
+    // Si esa interacción fue sobre un control de radio/TV, se respeta ese control
+    // y no se roba la prioridad al medio elegido por el usuario.
+    const startRadioOnFirstInteraction = (event) => {
+      document.removeEventListener("click", startRadioOnFirstInteraction);
+      document.removeEventListener("keydown", startRadioOnFirstInteraction);
+
+      const target = event.target instanceof Element ? event.target : null;
+      const mediaControl = target?.closest(
+        "video, audio, [data-play-tv], [data-play-tv2], [data-play-radio], #radioToggle, #radioMute, #radioVolume"
+      );
+
+      if (mediaControl) return;
+      if (activeMediaIntent && activeMediaIntent !== "radio") return;
+      if (!audio.paused || audio.ended) return;
+
+      void requestRadioPlayback();
+    };
+
+    document.addEventListener("click", startRadioOnFirstInteraction);
+    document.addEventListener("keydown", startRadioOnFirstInteraction);
   }
 
   const radioSection = $("#radio");
