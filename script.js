@@ -647,34 +647,37 @@ function setupRadioPlayer() {
     });
 
     // Intenta iniciar la radio automáticamente al abrir la página.
-    // Si el navegador bloquea el autoplay con sonido, se conserva exactamente
-    // el mismo reproductor y se espera la primera interacción real del usuario.
+    // Si Chrome Android bloquea el autoplay con sonido, el fallback móvil se
+    // activa únicamente cuando el usuario realiza su primer DESPLAZAMIENTO real.
+    // No se modifica ni se bloquea el scroll normal de la página.
     let firstInteractionFallbackArmed = false;
     let firstInteractionPlaybackPending = false;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchMovedEnough = false;
+    let touchStartedOnMediaControl = false;
+    const SWIPE_THRESHOLD_PX = 12;
+
+    const isMediaControlTarget = (target) => {
+      const element = target instanceof Element ? target : null;
+      return Boolean(element?.closest(
+        "video, audio, [data-play-tv], [data-play-tv2], [data-play-radio], #radioToggle, #radioMute, #radioVolume"
+      ));
+    };
 
     const disarmFirstInteractionFallback = () => {
       if (!firstInteractionFallbackArmed) return;
       firstInteractionFallbackArmed = false;
-      document.removeEventListener("pointerup", startRadioOnFirstInteraction, true);
-      document.removeEventListener("touchend", startRadioOnFirstInteraction, true);
-      document.removeEventListener("click", startRadioOnFirstInteraction, true);
-      document.removeEventListener("keydown", startRadioOnFirstInteraction, true);
+      document.removeEventListener("touchstart", rememberTouchStart, true);
+      document.removeEventListener("touchmove", rememberTouchMove, true);
+      document.removeEventListener("touchend", startRadioAfterFirstSwipe, true);
+      document.removeEventListener("touchcancel", resetTouchGesture, true);
+      document.removeEventListener("click", startRadioOnDesktopInteraction, true);
+      document.removeEventListener("keydown", startRadioOnDesktopInteraction, true);
     };
 
-    const startRadioOnFirstInteraction = (event) => {
+    const attemptFallbackPlayback = () => {
       if (!firstInteractionFallbackArmed || firstInteractionPlaybackPending) return;
-
-      const target = event.target instanceof Element ? event.target : null;
-      const mediaControl = target?.closest(
-        "video, audio, [data-play-tv], [data-play-tv2], [data-play-radio], #radioToggle, #radioMute, #radioVolume"
-      );
-
-      // Si el usuario eligió expresamente un control multimedia, ese control
-      // mantiene la prioridad y la lógica existente se encarga de reproducirlo.
-      if (mediaControl) {
-        disarmFirstInteractionFallback();
-        return;
-      }
 
       if (activeMediaIntent && activeMediaIntent !== "radio") {
         disarmFirstInteractionFallback();
@@ -686,9 +689,6 @@ function setupRadioPlayer() {
         return;
       }
 
-      // Chrome para Android recomienda iniciar multimedia desde una activación
-      // completa del usuario (click/pointerup/touchend). Por eso el fallback
-      // se ejecuta aquí y no en pointerdown/touchstart.
       firstInteractionPlaybackPending = true;
 
       Promise.resolve(requestRadioPlayback())
@@ -698,25 +698,78 @@ function setupRadioPlayer() {
         .catch((error) => {
           firstInteractionPlaybackPending = false;
 
-          // Si el navegador todavía no reconoció la activación, dejamos el
-          // fallback armado para que el siguiente toque/clic pueda intentarlo.
+          // Si el navegador todavía no reconoce la activación, conservamos el
+          // fallback para que el siguiente desplazamiento pueda reintentarlo.
           if (error?.name === "NotAllowedError") return;
 
           disarmFirstInteractionFallback();
         });
     };
 
+    const rememberTouchStart = (event) => {
+      if (!firstInteractionFallbackArmed || event.touches.length !== 1) return;
+
+      const touch = event.touches[0];
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+      touchMovedEnough = false;
+      touchStartedOnMediaControl = isMediaControlTarget(event.target);
+    };
+
+    const rememberTouchMove = (event) => {
+      if (!firstInteractionFallbackArmed || event.touches.length !== 1) return;
+
+      const touch = event.touches[0];
+      const deltaX = Math.abs(touch.clientX - touchStartX);
+      const deltaY = Math.abs(touch.clientY - touchStartY);
+
+      if (deltaX >= SWIPE_THRESHOLD_PX || deltaY >= SWIPE_THRESHOLD_PX) {
+        touchMovedEnough = true;
+      }
+    };
+
+    const resetTouchGesture = () => {
+      touchMovedEnough = false;
+      touchStartedOnMediaControl = false;
+    };
+
+    const startRadioAfterFirstSwipe = () => {
+      if (!firstInteractionFallbackArmed) return;
+
+      const shouldStart = touchMovedEnough && !touchStartedOnMediaControl;
+      resetTouchGesture();
+
+      // touchend es una activación reconocida por Chrome Android. Ejecutamos
+      // play() dentro del mismo evento, justo al terminar el primer deslizamiento.
+      if (shouldStart) attemptFallbackPlayback();
+    };
+
+    const startRadioOnDesktopInteraction = (event) => {
+      if (!firstInteractionFallbackArmed || isMediaControlTarget(event.target)) return;
+
+      // En equipos sin interfaz táctil mantenemos el respaldo por click/teclado.
+      // En Android un simple toque en una zona vacía NO inicia la radio: se espera
+      // el primer desplazamiento real, tal como se solicita para esta versión.
+      if (navigator.maxTouchPoints > 0) return;
+
+      attemptFallbackPlayback();
+    };
+
     const armFirstInteractionFallback = () => {
       if (firstInteractionFallbackArmed) return;
       firstInteractionFallbackArmed = true;
       firstInteractionPlaybackPending = false;
+      resetTouchGesture();
 
-      // Para audio en Chrome Android, click/pointerup/touchend son eventos de
-      // activación más fiables que pointerdown/touchstart.
-      document.addEventListener("pointerup", startRadioOnFirstInteraction, true);
-      document.addEventListener("touchend", startRadioOnFirstInteraction, true);
-      document.addEventListener("click", startRadioOnFirstInteraction, true);
-      document.addEventListener("keydown", startRadioOnFirstInteraction, true);
+      // touchstart/touchmove solo detectan que hubo un desplazamiento; no llaman
+      // a play(). La reproducción se solicita en touchend, que sí genera user
+      // activation en Chrome Android. Los listeners son pasivos y no alteran scroll.
+      document.addEventListener("touchstart", rememberTouchStart, { capture: true, passive: true });
+      document.addEventListener("touchmove", rememberTouchMove, { capture: true, passive: true });
+      document.addEventListener("touchend", startRadioAfterFirstSwipe, { capture: true, passive: true });
+      document.addEventListener("touchcancel", resetTouchGesture, { capture: true, passive: true });
+      document.addEventListener("click", startRadioOnDesktopInteraction, true);
+      document.addEventListener("keydown", startRadioOnDesktopInteraction, true);
     };
 
     const tryInitialRadioAutoplay = () => {
