@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Prueba de autoplay Icecast</title>
+  <style>
+    body{
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      max-width:900px;
+      margin:0 auto;
+      padding:20px;
+      background:#0b1020;
+      color:#f4f7ff;
+    }
+    .card{
+      background:#151c33;
+      border:1px solid #2b3557;
+      border-radius:16px;
+      padding:18px;
+      margin:18px 0;
+    }
+    h1{font-size:1.5rem;margin-top:0}
+    h2{font-size:1.1rem;margin-top:0}
+    p{line-height:1.45}
+    audio, iframe{
+      width:100%;
+      margin-top:10px;
+    }
+    iframe{
+      min-height:120px;
+      border:1px solid #3a456d;
+      border-radius:12px;
+      background:#000;
+    }
+    button{
+      padding:12px 16px;
+      border:0;
+      border-radius:10px;
+      font-weight:700;
+      cursor:pointer;
+      margin-top:10px;
+    }
+    pre{
+      white-space:pre-wrap;
+      word-break:break-word;
+      background:#080c18;
+      padding:12px;
+      border-radius:10px;
+      min-height:80px;
+      font-size:.85rem;
+    }
+    .small{opacity:.8;font-size:.9rem}
+  </style>
+</head>
+<body>
+
+<h1>Prueba de autoplay — Icecast</h1>
+<p class="small">
+  Stream: https://usa3.lhdserver.es:8253/stream
+</p>
+<p>
+  Abre esta página en una pestaña nueva y, para la primera observación, no toques nada durante 15 segundos.
+</p>
+
+<section class="card">
+  <h2>PRUEBA A — &lt;audio autoplay&gt; en la página principal</h2>
+  <audio id="audioA"
+         controls
+         autoplay
+         preload="auto"
+         playsinline
+         src="https://usa3.lhdserver.es:8253/stream"></audio>
+  <button id="playA" type="button">Reproducir manualmente A</button>
+  <pre id="logA">Esperando eventos...</pre>
+</section>
+
+<section class="card">
+  <h2>PRUEBA B — reproductor dentro de iframe, sin delegación</h2>
+  <iframe id="frameB"
+          title="Prueba B"
+          srcdoc='<!doctype html><html><body style="margin:0;background:#000;color:#fff;font-family:sans-serif"><audio id="a" controls autoplay preload="auto" playsinline src="https://usa3.lhdserver.es:8253/stream" style="width:100%"></audio><script>const a=document.getElementById("a");a.play().catch(()=>{});<\/script></body></html>'>
+  </iframe>
+  <p class="small">Aquí el iframe no recibe <code>allow="autoplay"</code>.</p>
+</section>
+
+<section class="card">
+  <h2>PRUEBA C — reproductor dentro de iframe con allow="autoplay"</h2>
+  <iframe id="frameC"
+          title="Prueba C"
+          allow="autoplay"
+          srcdoc='<!doctype html><html><body style="margin:0;background:#000;color:#fff;font-family:sans-serif"><audio id="a" controls autoplay preload="auto" playsinline src="https://usa3.lhdserver.es:8253/stream" style="width:100%"></audio><script>const a=document.getElementById("a");a.play().catch(()=>{});<\/script></body></html>'>
+  </iframe>
+  <p class="small">Esta variante delega explícitamente autoplay al iframe.</p>
+</section>
+
+<section class="card">
+  <h2>Diagnóstico de PRUEBA A</h2>
+  <p class="small">
+    Si Chrome bloquea el autoplay, aquí debería aparecer <b>NotAllowedError</b>.
+    Si lo permite, aparecerán <b>play / playing</b>.
+  </p>
+  <button id="copyLog" type="button">Copiar diagnóstico</button>
+  <pre id="masterLog"></pre>
+</section>
+
+<script>
+(() => {
+  "use strict";
+
+  const audio = document.getElementById("audioA");
+  const logA = document.getElementById("logA");
+  const masterLog = document.getElementById("masterLog");
+  const t0 = performance.now();
+  const rows = [];
+
+  function state() {
+    return `paused=${audio.paused} currentTime=${audio.currentTime.toFixed(3)} readyState=${audio.readyState} networkState=${audio.networkState} muted=${audio.muted}`;
+  }
+
+  function log(message) {
+    const t = ((performance.now() - t0) / 1000).toFixed(3);
+    const line = `[${t}s] ${message} | ${state()}`;
+    rows.push(line);
+    logA.textContent = rows.slice(-14).join("\n");
+    masterLog.textContent = rows.join("\n");
+    console.log(line);
+  }
+
+  [
+    "loadstart","durationchange","loadedmetadata","loadeddata",
+    "canplay","canplaythrough","play","playing","waiting",
+    "stalled","suspend","pause","error","abort","emptied"
+  ].forEach(ev => audio.addEventListener(ev, () => log(`EVENT ${ev}`)));
+
+  audio.addEventListener("timeupdate", () => {
+    if (Math.floor(audio.currentTime) % 5 === 0) {
+      log("EVENT timeupdate");
+    }
+  });
+
+  log("PÁGINA INICIADA");
+
+  const attempt = audio.play();
+  if (attempt && typeof attempt.then === "function") {
+    attempt.then(() => log("play() inicial RESOLVED"))
+      .catch(err => log(`play() inicial REJECTED ${err.name}: ${err.message}`));
+  }
+
+  document.getElementById("playA").addEventListener("click", async () => {
+    try {
+      await audio.play();
+      log("PLAY MANUAL A RESOLVED");
+    } catch (err) {
+      log(`PLAY MANUAL A REJECTED ${err.name}: ${err.message}`);
+    }
+  });
+
+  document.getElementById("copyLog").addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(rows.join("\n"));
+      alert("Diagnóstico copiado.");
+    } catch {
+      alert("No se pudo copiar automáticamente. Selecciona el texto manualmente.");
+    }
+  });
+
+  window.addEventListener("pageshow", e => log(`WINDOW pageshow persisted=${e.persisted}`));
+  document.addEventListener("visibilitychange", () => log(`visibility=${document.visibilityState}`));
+})();
+</script>
+
+</body>
+</html>
