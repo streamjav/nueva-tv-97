@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Prueba Player V2 — Icecast</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:20px;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#0b1020;color:#f5f7ff}
+main{max-width:900px;margin:0 auto}
+h1{font-size:1.55rem;margin:0 0 8px}
+h2{font-size:1.08rem;margin:0 0 10px}
+p{line-height:1.45}
+.note{padding:12px 14px;border:1px solid #33406c;background:#111831;border-radius:12px;margin:14px 0 20px}
+.card{background:#151c33;border:1px solid #2d385e;border-radius:16px;padding:16px;margin:18px 0}
+audio,iframe{display:block;width:100%;margin-top:12px;border-radius:10px}
+iframe{min-height:145px;border:1px solid #3d496f;background:#000}
+pre{white-space:pre-wrap;word-break:break-word;background:#080c18;padding:12px;border-radius:10px;min-height:90px;font-size:.82rem}
+button{border:0;border-radius:10px;padding:11px 14px;font-weight:700;margin-top:10px;cursor:pointer}
+.small{opacity:.8;font-size:.9rem}
+code{word-break:break-all}
+</style>
+</head>
+<body>
+<main>
+<h1>Prueba Player V2 — Icecast</h1>
+
+<div class="note">
+<strong>Esta página es independiente.</strong> No modifica el reproductor ni el diseño de la web principal.
+<br><br>
+Stream: <code>https://usa3.lhdserver.es:8253/stream</code>
+<br><br>
+Para la primera prueba, abre esta página en una pestaña nueva y <strong>no toques nada durante 15 segundos</strong>.
+</div>
+
+<section class="card">
+<h2>PRUEBA A — Control: &lt;audio autoplay&gt;</h2>
+<p class="small">Referencia: el mismo método que Chrome Android ya ha bloqueado con NotAllowedError.</p>
+<audio id="audioA" controls autoplay preload="auto" playsinline src="https://usa3.lhdserver.es:8253/stream"></audio>
+<button id="playA" type="button">Play manual A</button>
+</section>
+
+<section class="card">
+<h2>PRUEBA B — iframe DIRECTO al stream</h2>
+<p class="small">No hay &lt;audio&gt; creado por esta página. El iframe navega directamente al mountpoint Icecast para que Chrome construya su reproductor multimedia.</p>
+<iframe id="frameB" title="Icecast directo sin allow autoplay" src="https://usa3.lhdserver.es:8253/stream"></iframe>
+</section>
+
+<section class="card">
+<h2>PRUEBA C — iframe DIRECTO + allow="autoplay"</h2>
+<p class="small">Igual que B, pero con delegación explícita de autoplay al iframe.</p>
+<iframe id="frameC" title="Icecast directo con allow autoplay" allow="autoplay" src="https://usa3.lhdserver.es:8253/stream"></iframe>
+</section>
+
+<section class="card">
+<h2>Diagnóstico de la Prueba A</h2>
+<p class="small">B y C son documentos multimedia de otro origen, por lo que esta página no puede leer su estado interno. El diagnóstico siguiente corresponde solo a A.</p>
+<button id="copyLog" type="button">Copiar diagnóstico A</button>
+<pre id="log">Esperando eventos...</pre>
+</section>
+</main>
+
+<script>
+(() => {
+"use strict";
+const audio = document.getElementById("audioA");
+const out = document.getElementById("log");
+const start = performance.now();
+const rows = [];
+
+function state() {
+  return `paused=${audio.paused} currentTime=${audio.currentTime.toFixed(3)} readyState=${audio.readyState} networkState=${audio.networkState} muted=${audio.muted}`;
+}
+
+function log(message) {
+  const t = ((performance.now() - start) / 1000).toFixed(3);
+  const line = `[${t}s] ${message} | ${state()}`;
+  rows.push(line);
+  out.textContent = rows.join("\n");
+  console.log(line);
+}
+
+["loadstart","durationchange","loadedmetadata","loadeddata","canplay","canplaythrough","play","playing","waiting","stalled","suspend","pause","error","abort","emptied"]
+.forEach(ev => audio.addEventListener(ev, () => log(`EVENT ${ev}`)));
+
+log("PÁGINA V2 INICIADA");
+
+const p = audio.play();
+if (p && typeof p.then === "function") {
+  p.then(() => log("play() inicial A RESOLVED"))
+   .catch(err => log(`play() inicial A REJECTED ${err.name}: ${err.message}`));
+}
+
+document.getElementById("playA").addEventListener("click", async () => {
+  try {
+    await audio.play();
+    log("PLAY MANUAL A RESOLVED");
+  } catch (err) {
+    log(`PLAY MANUAL A REJECTED ${err.name}: ${err.message}`);
+  }
+});
+
+document.getElementById("copyLog").addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(rows.join("\n"));
+    alert("Diagnóstico A copiado.");
+  } catch {
+    alert("No se pudo copiar automáticamente. Selecciona el texto manualmente.");
+  }
+});
+
+window.addEventListener("pageshow", e => log(`WINDOW pageshow persisted=${e.persisted}`));
+document.addEventListener("visibilitychange", () => log(`visibility=${document.visibilityState}`));
+})();
+</script>
+</body>
+</html>
