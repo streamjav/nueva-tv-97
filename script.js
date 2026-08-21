@@ -43,185 +43,6 @@ const WHATSAPP_NUMBER = "51901996052";
 const $ = (selector, parent = document) => parent.querySelector(selector);
 const $$ = (selector, parent = document) => Array.from(parent.querySelectorAll(selector));
 
-
-// ===== DIAGNÓSTICO TEMPORAL DE AUTOPLAY / ICECAST =====
-// Se activa ÚNICAMENTE al abrir la web con ?diag=1.
-// La página normal (sin ?diag=1) conserva exactamente el mismo comportamiento.
-const RADIO_DIAG_ENABLED = new URLSearchParams(window.location.search).get("diag") === "1";
-const RADIO_DIAG_VERSION = "ICECAST-DIAG-2026-08-20-v1";
-const RADIO_DIAG_STORAGE_KEY = "radioNueva97DiagLog";
-let radioDiagStartedAt = performance.now();
-let radioDiagPanel = null;
-let radioDiagOutput = null;
-let radioDiagEntries = [];
-let radioDiagLastTimeupdate = 0;
-
-function mediaReadyStateName(value) {
-  return ["HAVE_NOTHING", "HAVE_METADATA", "HAVE_CURRENT_DATA", "HAVE_FUTURE_DATA", "HAVE_ENOUGH_DATA"][value] || String(value);
-}
-
-function mediaNetworkStateName(value) {
-  return ["NETWORK_EMPTY", "NETWORK_IDLE", "NETWORK_LOADING", "NETWORK_NO_SOURCE"][value] || String(value);
-}
-
-function radioDiagSnapshot(audio) {
-  const mediaError = audio?.error;
-  return {
-    t: `${((performance.now() - radioDiagStartedAt) / 1000).toFixed(3)}s`,
-    paused: audio?.paused,
-    ended: audio?.ended,
-    muted: audio?.muted,
-    volume: audio ? Number(audio.volume).toFixed(2) : null,
-    currentTime: audio && Number.isFinite(audio.currentTime) ? audio.currentTime.toFixed(3) : null,
-    readyState: audio ? `${audio.readyState}/${mediaReadyStateName(audio.readyState)}` : null,
-    networkState: audio ? `${audio.networkState}/${mediaNetworkStateName(audio.networkState)}` : null,
-    error: mediaError ? { code: mediaError.code, message: mediaError.message || "" } : null,
-    visibility: document.visibilityState,
-    userActive: navigator.userActivation?.isActive ?? null,
-    userHasBeenActive: navigator.userActivation?.hasBeenActive ?? null,
-    activeMediaIntent
-  };
-}
-
-function radioDiagPersist() {
-  if (!RADIO_DIAG_ENABLED) return;
-  try {
-    sessionStorage.setItem(RADIO_DIAG_STORAGE_KEY, JSON.stringify(radioDiagEntries.slice(-180)));
-  } catch (_error) {
-    // El diagnóstico sigue funcionando aunque el navegador bloquee sessionStorage.
-  }
-}
-
-function radioDiagRender() {
-  if (!RADIO_DIAG_ENABLED || !radioDiagOutput) return;
-  radioDiagOutput.textContent = radioDiagEntries.map((entry) => entry.text).join("\n");
-  radioDiagOutput.scrollTop = radioDiagOutput.scrollHeight;
-}
-
-function radioDiagLog(label, audio = null, extra = null) {
-  if (!RADIO_DIAG_ENABLED) return;
-  const snapshot = radioDiagSnapshot(audio);
-  const suffix = extra == null ? "" : ` | ${typeof extra === "string" ? extra : JSON.stringify(extra)}`;
-  const text = `[${snapshot.t}] ${label} | paused=${snapshot.paused} ct=${snapshot.currentTime} ready=${snapshot.readyState} net=${snapshot.networkState} muted=${snapshot.muted} vis=${snapshot.visibility} userActive=${snapshot.userActive} userEver=${snapshot.userHasBeenActive} intent=${snapshot.activeMediaIntent}${snapshot.error ? ` error=${JSON.stringify(snapshot.error)}` : ""}${suffix}`;
-  radioDiagEntries.push({ text, ts: Date.now() });
-  if (radioDiagEntries.length > 180) radioDiagEntries = radioDiagEntries.slice(-180);
-  console.log(`[RADIO DIAG] ${text}`);
-  radioDiagPersist();
-  radioDiagRender();
-}
-
-function setupRadioDiagPanel() {
-  if (!RADIO_DIAG_ENABLED || radioDiagPanel) return;
-
-  radioDiagPanel = document.createElement("section");
-  radioDiagPanel.id = "radioDiagPanel";
-  radioDiagPanel.setAttribute("aria-label", "Diagnóstico temporal de radio");
-  radioDiagPanel.style.cssText = [
-    "position:fixed", "left:6px", "right:6px", "bottom:6px", "z-index:2147483647",
-    "max-height:48vh", "background:rgba(0,0,0,.92)", "color:#fff", "border:1px solid #7dff7d",
-    "border-radius:8px", "padding:8px", "font:11px/1.35 monospace", "box-shadow:0 4px 20px rgba(0,0,0,.45)"
-  ].join(";");
-
-  const toolbar = document.createElement("div");
-  toolbar.style.cssText = "display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap";
-
-  const title = document.createElement("strong");
-  title.textContent = `RADIO DIAG · ${RADIO_DIAG_VERSION}`;
-  title.style.cssText = "margin-right:auto";
-
-  const copy = document.createElement("button");
-  copy.type = "button";
-  copy.textContent = "Copiar diagnóstico";
-  copy.style.cssText = "font:12px sans-serif;padding:5px 8px;cursor:pointer";
-  copy.addEventListener("click", async () => {
-    const payload = radioDiagEntries.map((entry) => entry.text).join("\n");
-    try {
-      await navigator.clipboard.writeText(payload);
-      copy.textContent = "Copiado ✓";
-      window.setTimeout(() => { copy.textContent = "Copiar diagnóstico"; }, 1400);
-    } catch (_error) {
-      window.prompt("Copia el diagnóstico:", payload);
-    }
-  });
-
-  const clear = document.createElement("button");
-  clear.type = "button";
-  clear.textContent = "Limpiar";
-  clear.style.cssText = "font:12px sans-serif;padding:5px 8px;cursor:pointer";
-  clear.addEventListener("click", () => {
-    radioDiagEntries = [];
-    try { sessionStorage.removeItem(RADIO_DIAG_STORAGE_KEY); } catch (_error) {}
-    radioDiagRender();
-  });
-
-  const close = document.createElement("button");
-  close.type = "button";
-  close.textContent = "Ocultar";
-  close.style.cssText = "font:12px sans-serif;padding:5px 8px;cursor:pointer";
-  close.addEventListener("click", () => { radioDiagPanel.style.display = "none"; });
-
-  radioDiagOutput = document.createElement("pre");
-  radioDiagOutput.style.cssText = "margin:0;white-space:pre-wrap;overflow:auto;max-height:36vh;color:#d9ffd9";
-
-  toolbar.append(title, copy, clear, close);
-  radioDiagPanel.append(toolbar, radioDiagOutput);
-  document.body.appendChild(radioDiagPanel);
-  radioDiagRender();
-}
-
-function setupRadioDiagnostics(audio) {
-  if (!RADIO_DIAG_ENABLED || !audio) return;
-  setupRadioDiagPanel();
-
-  try {
-    const previous = JSON.parse(sessionStorage.getItem(RADIO_DIAG_STORAGE_KEY) || "[]");
-    if (Array.isArray(previous) && previous.length) {
-      radioDiagEntries = previous.slice(-50);
-      radioDiagEntries.push({ text: "──────── NUEVA CARGA / RECARGA ────────", ts: Date.now() });
-      radioDiagRender();
-    }
-  } catch (_error) {}
-
-  radioDiagLog("DIAG INICIADO", audio, {
-    version: RADIO_DIAG_VERSION,
-    href: location.href,
-    ua: navigator.userAgent,
-    src: audio.currentSrc || audio.src
-  });
-
-  const events = [
-    "loadstart", "durationchange", "loadedmetadata", "loadeddata", "canplay", "canplaythrough",
-    "play", "playing", "waiting", "stalled", "suspend", "pause", "emptied", "abort", "error",
-    "volumechange", "ratechange", "ended"
-  ];
-
-  events.forEach((eventName) => {
-    audio.addEventListener(eventName, () => radioDiagLog(`EVENT ${eventName}`, audio));
-  });
-
-  audio.addEventListener("timeupdate", () => {
-    const now = performance.now();
-    if (now - radioDiagLastTimeupdate >= 1000) {
-      radioDiagLastTimeupdate = now;
-      radioDiagLog("EVENT timeupdate", audio);
-    }
-  });
-
-  document.addEventListener("visibilitychange", () => radioDiagLog("DOCUMENT visibilitychange", audio));
-  window.addEventListener("pageshow", (event) => radioDiagLog("WINDOW pageshow", audio, { persisted: event.persisted }));
-  window.addEventListener("pagehide", (event) => radioDiagLog("WINDOW pagehide", audio, { persisted: event.persisted }));
-  window.addEventListener("online", () => radioDiagLog("WINDOW online", audio));
-  window.addEventListener("offline", () => radioDiagLog("WINDOW offline", audio));
-  window.addEventListener("unhandledrejection", (event) => {
-    const reason = event.reason;
-    radioDiagLog("WINDOW unhandledrejection", audio, {
-      name: reason?.name || "",
-      message: reason?.message || String(reason || "")
-    });
-  });
-}
-// ===== FIN DIAGNÓSTICO TEMPORAL =====
-
 // Garantiza que la radio y las dos señales de televisión nunca reproduzcan
 // sonido al mismo tiempo. El último medio elegido por el usuario tiene prioridad,
 // incluso si otro reproductor estaba terminando una conexión asíncrona.
@@ -703,7 +524,6 @@ function setupRadioPlayer() {
   audio.volume = Number(volume?.value ?? 0.82);
   audio.preload = "auto";
   audio.setAttribute("playsinline", "");
-  setupRadioDiagnostics(audio);
 
   const securePage = window.location.protocol === "https:";
   const secureStream = RADIO_STREAM_TLS_URL.trim();
@@ -759,7 +579,6 @@ function setupRadioPlayer() {
       // reproduciéndose, se pausa de inmediato.
       claimExclusivePlayback("radio");
       audio.muted = false;
-      radioDiagLog("PLAY MANUAL solicitado", audio);
 
       let playAttempt;
       try {
@@ -782,11 +601,7 @@ function setupRadioPlayer() {
       }
 
       playAttempt
-        .then(() => {
-          radioDiagLog("PLAY MANUAL resolved", audio);
-        })
         .catch((error) => {
-          radioDiagLog("PLAY MANUAL rejected", audio, { name: error?.name || "", message: error?.message || String(error || "") });
           console.error("El navegador bloqueó o interrumpió la radio:", error);
           releaseMediaIntent("radio");
           setState("error", "No se pudo conectar", "Toca nuevamente el botón del reproductor o abre la señal directa");
@@ -832,32 +647,82 @@ function setupRadioPlayer() {
     });
 
     // Intenta iniciar la radio automáticamente al abrir la página.
-    // Si el navegador bloquea el autoplay con sonido, no altera el diseño ni
-    // muestra un falso error: los controles manuales continúan funcionando igual.
+    // Si el navegador bloquea el autoplay con sonido, se conserva exactamente
+    // el mismo reproductor y se espera la primera interacción real del usuario.
+    let firstInteractionFallbackArmed = false;
+
+    const disarmFirstInteractionFallback = () => {
+      if (!firstInteractionFallbackArmed) return;
+      firstInteractionFallbackArmed = false;
+      document.removeEventListener("pointerdown", startRadioOnFirstInteraction, true);
+      document.removeEventListener("touchstart", startRadioOnFirstInteraction, true);
+      document.removeEventListener("keydown", startRadioOnFirstInteraction, true);
+    };
+
+    const startRadioOnFirstInteraction = (event) => {
+      if (!firstInteractionFallbackArmed) return;
+
+      const target = event.target instanceof Element ? event.target : null;
+      const mediaControl = target?.closest(
+        "video, audio, [data-play-tv], [data-play-tv2], [data-play-radio], #radioToggle, #radioMute, #radioVolume"
+      );
+
+      // Si el usuario eligió expresamente un control multimedia, ese control
+      // mantiene la prioridad y la lógica existente se encarga de reproducirlo.
+      if (mediaControl) {
+        disarmFirstInteractionFallback();
+        return;
+      }
+
+      if (activeMediaIntent && activeMediaIntent !== "radio") {
+        disarmFirstInteractionFallback();
+        return;
+      }
+
+      disarmFirstInteractionFallback();
+      if (!audio.paused || audio.ended) return;
+
+      // Se llama directamente dentro del gesto del usuario para que Chrome/Edge
+      // y navegadores móviles puedan autorizar la reproducción con sonido.
+      void requestRadioPlayback();
+    };
+
+    const armFirstInteractionFallback = () => {
+      if (firstInteractionFallbackArmed) return;
+      firstInteractionFallbackArmed = true;
+      document.addEventListener("pointerdown", startRadioOnFirstInteraction, true);
+      document.addEventListener("touchstart", startRadioOnFirstInteraction, true);
+      document.addEventListener("keydown", startRadioOnFirstInteraction, true);
+    };
+
     const tryInitialRadioAutoplay = () => {
       if (!audio.paused || audio.ended) return;
 
       claimExclusivePlayback("radio");
       audio.muted = false;
-      radioDiagLog("AUTOPLAY solicitado", audio);
 
       try {
         const autoplayAttempt = audio.play();
         if (autoplayAttempt && typeof autoplayAttempt.then === "function") {
           autoplayAttempt
             .then(() => {
-              radioDiagLog("AUTOPLAY resolved", audio);
+              disarmFirstInteractionFallback();
             })
             .catch((error) => {
-              radioDiagLog("AUTOPLAY rejected", audio, { name: error?.name || "", message: error?.message || String(error || "") });
               releaseMediaIntent("radio");
-              if (error?.name !== "NotAllowedError") {
-                console.debug("Inicio automático de la radio no disponible:", error);
+              if (error?.name === "NotAllowedError") {
+                armFirstInteractionFallback();
+                return;
               }
+              console.debug("Inicio automático de la radio no disponible:", error);
             });
         }
       } catch (error) {
         releaseMediaIntent("radio");
+        if (error?.name === "NotAllowedError") {
+          armFirstInteractionFallback();
+          return;
+        }
         console.debug("El navegador no permitió iniciar automáticamente la radio:", error);
       }
     };
