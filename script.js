@@ -1,4 +1,4 @@
-const HLS_STREAM_URL = "https://video2.lhdserver.es/uranio/live.m3u8";
+const HLS_STREAM_URL = "https://183.bozztv.com/ssh101/ssh101/nuevatvchyo/playlist.m3u8";
 const HLS_STREAM_URL_2 = "https://lbgo.bozztv.com/ssh101/ssh101/radiolanueva97/playlist.m3u8";
 
 // Señal segura MP3 de Radio La Nueva 97 FM.
